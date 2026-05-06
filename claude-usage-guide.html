@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Make Your Free Claude Last Longer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --peach-100: #fff5f0;
+    --peach-200: #fde8dc;
+    --peach-300: #f9c9b0;
+    --peach-400: #f4a882;
+    --peach-500: #ee8055;
+    --pink-100: #fff0f5;
+    --pink-200: #fcd6e5;
+    --pink-300: #f7a8c8;
+    --pink-400: #f07dab;
+    --rose-soft: #f9e0e8;
+    --text-dark: #2d1f1a;
+    --text-mid: #6b4c42;
+    --text-light: #a87868;
+    --card-bg: rgba(255,255,255,0.75);
+    --shadow: 0 4px 24px rgba(238,128,85,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #fff5f0 0%, #fde8dc 30%, #fcd6e5 65%, #fff0f5 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 60px 0;
+  }
+
+  .header {
+    padding: 36px 24px 28px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 28px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+
+  .back-link::before { content: '←'; }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .category-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--peach-400), var(--pink-400));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(240,125,171,0.3);
+  }
+
+  .category-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--peach-500);
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1.15;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .section { padding: 0 16px; margin-bottom: 20px; }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
+    margin-bottom: 16px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+  .card:nth-child(5) { animation-delay: 0.33s; }
+  .card:nth-child(6) { animation-delay: 0.40s; }
+
+  .hack-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .hack-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .hack-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .hack-icon.peach  { background: linear-gradient(135deg, #fde8dc, #f4a882); box-shadow: 0 3px 10px rgba(244,168,130,0.3); }
+  .hack-icon.pink   { background: linear-gradient(135deg, #fcd6e5, #f07dab); box-shadow: 0 3px 10px rgba(240,125,171,0.3); }
+  .hack-icon.amber  { background: linear-gradient(135deg, #fef3e2, #f9c84a); box-shadow: 0 3px 10px rgba(249,200,74,0.3); }
+  .hack-icon.rose   { background: linear-gradient(135deg, #fde8dc, #ee8055); box-shadow: 0 3px 10px rgba(238,128,85,0.3); }
+  .hack-icon.coral  { background: linear-gradient(135deg, var(--rose-soft), #f07dab); box-shadow: 0 3px 10px rgba(240,125,171,0.25); }
+
+  .hack-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .hack-desc {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 14px;
+    font-weight: 300;
+  }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--peach-400), var(--pink-400));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    font-size: 13.5px;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+
+  .step-text strong {
+    font-weight: 600;
+    color: var(--peach-500);
+  }
+
+  /* Alert boxes */
+  .alert-box {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .alert-box.bad {
+    background: rgba(255,220,220,0.45);
+    border: 1px solid rgba(230,100,100,0.15);
+  }
+
+  .alert-box.good {
+    background: rgba(220,255,230,0.45);
+    border: 1px solid rgba(80,190,120,0.15);
+  }
+
+  .alert-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .alert-box.bad .alert-title { color: #c0392b; }
+  .alert-box.good .alert-title { color: #27ae60; }
+
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+    font-weight: 400;
+  }
+
+  .alert-item:last-child { margin-bottom: 0; }
+  .alert-item .icon { flex-shrink: 0; margin-top: 1px; }
+  .alert-box.bad .icon { color: #e74c3c; }
+  .alert-box.good .icon { color: #27ae60; }
+
+  /* Tip box */
+  .tip-box {
+    background: linear-gradient(135deg, rgba(253,232,220,0.6), rgba(252,214,229,0.6));
+    border-radius: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(244,168,130,0.3);
+    margin-top: 12px;
+  }
+
+  .tip-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--peach-500);
+    margin-bottom: 6px;
+  }
+
+  .tip-text {
+    font-size: 13.5px;
+    color: var(--text-dark);
+    line-height: 1.55;
+  }
+
+  /* Settings row */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.9);
+    margin-bottom: 8px;
+  }
+
+  .settings-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .settings-text { font-size: 13.5px; color: var(--text-dark); line-height: 1.5; }
+  .settings-text strong { font-weight: 600; display: block; margin-bottom: 2px; }
+  .settings-text span { color: var(--text-mid); font-weight: 300; font-size: 13px; }
+
+  /* Pro tip banner */
+  .pro-banner {
+    background: linear-gradient(135deg, rgba(238,128,85,0.12), rgba(240,125,171,0.12));
+    border: 1px solid rgba(240,125,171,0.25);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .pro-emoji { font-size: 22px; flex-shrink: 0; }
+
+  .pro-text { font-size: 13.5px; color: var(--text-dark); line-height: 1.55; }
+  .pro-text strong { font-weight: 600; color: var(--peach-500); display: block; margin-bottom: 4px; }
+
+  /* Summary */
+  .summary-card {
+    margin: 0 16px;
+    background: linear-gradient(135deg, #2d1f1a 0%, #4a2518 100%);
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease 0.45s both;
+  }
+
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(244,168,130,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--peach-400);
+    margin-bottom: 14px;
+  }
+
+  .summary-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: white;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .copy-summary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .copy-summary-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2d1f1a;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .copied-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <a class="back-link" href="#">Back to Resources</a>
+    <div class="category-badge">
+      <div class="category-icon">🧠</div>
+      <span class="category-label">Claude.ai Usage Guide</span>
+    </div>
+    <h1 class="hero-title">Make your free Claude last 5× longer</h1>
+    <p class="hero-subtitle">No paid plan needed. Just 5 simple habits that most people never bother to learn — but make a huge difference.</p>
+  </div>
+
+  <!-- Hack 1 -->
+  <div class="section">
+    <div class="card">
+      <p class="hack-label">Habit 1</p>
+      <div class="hack-header">
+        <div class="hack-icon peach">🔄</div>
+        <h2 class="hack-title">Start Fresh Every 15–20 Messages</h2>
+      </div>
+      <p class="hack-desc">Long chats eat your quota fast. Every message builds on the last — and Claude has to carry all of it. The longer the chat, the more expensive every single reply becomes.</p>
+
+      <div class="alert-box bad">
+        <p class="alert-title">✕ What most people do</p>
+        <div class="alert-item"><span class="icon">✕</span> Keep one long chat running for hours</div>
+        <div class="alert-item"><span class="icon">✕</span> Add more and more context in the same thread</div>
+      </div>
+
+      <div class="alert-box good">
+        <p class="alert-title">✓ What to do instead</p>
+        <div class="alert-item"><span class="icon">✓</span> Every 15–20 messages, ask Claude to summarize everything important</div>
+        <div class="alert-item"><span class="icon">✓</span> Copy that summary</div>
+        <div class="alert-item"><span class="icon">✓</span> Start a brand new chat and paste the summary at the top</div>
+      </div>
+
+      <div class="tip-box">
+        <p class="tip-label">💡 Prompt to use</p>
+        <p class="tip-text">"Summarize everything important from our conversation so I can continue in a new chat."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hack 2 -->
+  <div class="section">
+    <div class="card">
+      <p class="hack-label">Habit 2</p>
+      <div class="hack-header">
+        <div class="hack-icon pink">✏️</div>
+        <h2 class="hack-title">Edit Your Prompt, Don't Add More</h2>
+      </div>
+      <p class="hack-desc">If Claude got something wrong, most people type a new message to correct it. That's the expensive way. Every correction you add stays in the chat forever — costing you tokens every turn after.</p>
+
+      <div class="alert-box bad">
+        <p class="alert-title">✕ The expensive habit</p>
+        <div class="alert-item"><span class="icon">✕</span> "That's not right, try again"</div>
+        <div class="alert-item"><span class="icon">✕</span> "Make it shorter" / "Add more detail" as new messages</div>
+      </div>
+
+      <div class="alert-box good">
+        <p class="alert-title">✓ The smarter habit</p>
+        <div class="alert-item"><span class="icon">✓</span> Go back to your original message</div>
+        <div class="alert-item"><span class="icon">✓</span> Click Edit (pencil icon)</div>
+        <div class="alert-item"><span class="icon">✓</span> Add more context or fix what was unclear</div>
+        <div class="alert-item"><span class="icon">✓</span> Resubmit — Claude starts fresh from that point</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hack 3 -->
+  <div class="section">
+    <div class="card">
+      <p class="hack-label">Habit 3</p>
+      <div class="hack-header">
+        <div class="hack-icon amber">📦</div>
+        <h2 class="hack-title">Combine Questions Into One Prompt</h2>
+      </div>
+      <p class="hack-desc">Every message you send costs tokens — even short ones. Asking five questions one by one is five times more expensive than asking them all together.</p>
+
+      <div class="alert-box bad">
+        <p class="alert-title">✕ Expensive way</p>
+        <div class="alert-item"><span class="icon">✕</span> "What is prompt engineering?"</div>
+        <div class="alert-item"><span class="icon">✕</span> "Give me an example"</div>
+        <div class="alert-item"><span class="icon">✕</span> "How do I use it for emails?"</div>
+      </div>
+
+      <div class="alert-box good">
+        <p class="alert-title">✓ Smarter way</p>
+        <div class="alert-item"><span class="icon">✓</span> "What is prompt engineering? Give me an example and show me how to use it for writing emails." — one message, same answer.</div>
+      </div>
+
+      <div class="pro-banner">
+        <span class="pro-emoji">⚡</span>
+        <p class="pro-text"><strong>Pro tip</strong>Plan your questions before opening Claude. Write them all out first, then send everything in one go.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hack 4 -->
+  <div class="section">
+    <div class="card">
+      <p class="hack-label">Habit 4</p>
+      <div class="hack-header">
+        <div class="hack-icon rose">📁</div>
+        <h2 class="hack-title">Use Claude Projects for Files</h2>
+      </div>
+      <p class="hack-desc">If you keep working with the same files — a resume, a business plan, a research doc — uploading them again and again in every chat wastes a huge amount of your quota.</p>
+
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <span class="step-text">Go to <strong>Claude.ai</strong> and click <strong>Projects</strong> in the sidebar</span>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <span class="step-text">Create a new project — name it anything</span>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <span class="step-text">Upload your files <strong>once</strong> inside the project</span>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <span class="step-text">Every chat inside that project automatically has access to those files — <strong>no re-uploading needed</strong></span>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <p class="tip-label">✨ Best for</p>
+        <p class="tip-text">Resumes, business docs, research papers, brand guidelines, recurring work — anything you use more than once.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hack 5 -->
+  <div class="section">
+    <div class="card">
+      <p class="hack-label">Habit 5</p>
+      <div class="hack-header">
+        <div class="hack-icon coral">🧩</div>
+        <h2 class="hack-title">Turn On Memory in Settings</h2>
+      </div>
+      <p class="hack-desc">Every time you start a new chat, Claude forgets everything about you. So people waste tokens re-explaining their name, their job, their preferences — every single time. Memory fixes this.</p>
+
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">1</span>
+          <span class="step-text">Click your <strong>profile icon</strong> on Claude.ai</span>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <span class="step-text">Go to <strong>Settings → Memory</strong></span>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <span class="step-text">Toggle it <strong>ON</strong></span>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <span class="step-text">Claude will now remember your preferences, context, and important details <strong>across all chats automatically</strong></span>
+        </div>
+      </div>
+
+      <div class="alert-box good" style="margin-top:12px;">
+        <p class="alert-title">✓ What Claude will remember</p>
+        <div class="alert-item"><span class="icon">✓</span> Your name, role, and background</div>
+        <div class="alert-item"><span class="icon">✓</span> Your writing style preferences</div>
+        <div class="alert-item"><span class="icon">✓</span> Recurring context you've shared before</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <p class="summary-badge">✦ The One-Line Summary</p>
+    <p class="summary-text">Fresh chats. Edit don't correct. Combine your questions. Use Projects for files. Turn on Memory. That's it.</p>
+    <button class="copy-summary-btn" onclick="copyText('Fresh chats. Edit don\'t correct. Combine your questions. Use Projects for files. Turn on Memory. That\'s it.', this)">📋 Copy summary</button>
+  </div>
+
+</div>
+
+<div class="copied-toast" id="toast">✓ Copied!</div>
+
+<script>
+  function copyText(text, btn) {
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+
+    const original = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    setTimeout(() => btn.innerHTML = original, 2000);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code Optimization</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --peach-100: #fff5f0;
+    --peach-200: #fde8dc;
+    --peach-300: #f9c9b0;
+    --peach-400: #f4a882;
+    --peach-500: #ee8055;
+    --pink-100: #fff0f5;
+    --pink-200: #fcd6e5;
+    --pink-300: #f7a8c8;
+    --pink-400: #f07dab;
+    --rose-soft: #f9e0e8;
+    --text-dark: #2d1f1a;
+    --text-mid: #6b4c42;
+    --text-light: #a87868;
+    --white: #ffffff;
+    --card-bg: rgba(255,255,255,0.75);
+    --shadow: 0 4px 24px rgba(238,128,85,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #fff5f0 0%, #fde8dc 30%, #fcd6e5 65%, #fff0f5 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 0 60px 0;
+  }
+
+  /* Header */
+  .header {
+    padding: 36px 24px 28px;
+    text-align: left;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 28px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+
+  .back-link::before { content: '←'; }
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .category-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--peach-400), var(--pink-400));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(240,125,171,0.3);
+  }
+
+  .category-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--peach-500);
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1.15;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* Section */
+  .section { padding: 0 16px; margin-bottom: 20px; }
+
+  /* Card */
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
+    margin-bottom: 16px;
+  }
+
+  .root-cause-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .cause-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .cause-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .cause-icon.orange { background: linear-gradient(135deg, #fde8dc, #f4a882); box-shadow: 0 3px 10px rgba(244,168,130,0.3); }
+  .cause-icon.amber  { background: linear-gradient(135deg, #fef3e2, #f9c84a); box-shadow: 0 3px 10px rgba(249,200,74,0.3); }
+  .cause-icon.pink   { background: linear-gradient(135deg, #fcd6e5, #f07dab); box-shadow: 0 3px 10px rgba(240,125,171,0.3); }
+  .cause-icon.rose   { background: linear-gradient(135deg, #fde8dc, #ee8055); box-shadow: 0 3px 10px rgba(238,128,85,0.3); }
+  .cause-icon.coral  { background: linear-gradient(135deg, var(--rose-soft), #f07dab); box-shadow: 0 3px 10px rgba(240,125,171,0.25); }
+
+  .cause-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text-dark);
+    line-height: 1.2;
+  }
+
+  .cause-desc {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 16px;
+    font-weight: 300;
+  }
+
+  /* Don't / Do boxes */
+  .alert-box {
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .alert-box.bad {
+    background: rgba(255,220,220,0.45);
+    border: 1px solid rgba(230,100,100,0.15);
+  }
+
+  .alert-box.good {
+    background: rgba(220,255,230,0.45);
+    border: 1px solid rgba(80,190,120,0.15);
+  }
+
+  .alert-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .alert-box.bad .alert-title { color: #c0392b; }
+  .alert-box.good .alert-title { color: #27ae60; }
+
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+    font-weight: 400;
+  }
+
+  .alert-item:last-child { margin-bottom: 0; }
+  .alert-item .icon { flex-shrink: 0; margin-top: 1px; }
+  .alert-box.bad .icon { color: #e74c3c; }
+  .alert-box.good .icon { color: #27ae60; }
+
+  /* Code box */
+  .code-box {
+    background: #2d1f1a;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .code-box-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .code-box code {
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    color: #f4a882;
+    line-height: 1.7;
+    display: block;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .copy-btn:hover { background: rgba(255,255,255,0.2); }
+
+  /* Habit rows */
+  .habits-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 16px 0 10px;
+  }
+
+  .habit-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 11px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .habit-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: white;
+  }
+
+  .tag-peach   { background: linear-gradient(135deg, #ee8055, #f4a882); }
+  .tag-pink    { background: linear-gradient(135deg, #f07dab, #f9c9b0); }
+  .tag-rose    { background: linear-gradient(135deg, #e84393, #f07dab); }
+  .tag-amber   { background: linear-gradient(135deg, #e0922a, #f9c84a); color: #2d1f1a !important; }
+  .tag-coral   { background: linear-gradient(135deg, #c0392b, #ee8055); }
+  .tag-dark    { background: #2d1f1a; }
+  .tag-teal    { background: linear-gradient(135deg, #1a7a6e, #2ec4b6); }
+
+  .habit-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  /* Subagent guide */
+  .subagent-grid { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+
+  .subagent-item {
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 11px;
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .subagent-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+  }
+
+  .subagent-use {
+    font-size: 12.5px;
+    color: var(--text-light);
+    font-weight: 300;
+  }
+
+  /* Effort levels */
+  .effort-grid { display: flex; flex-direction: column; gap: 8px; }
+
+  .effort-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 11px;
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .effort-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    font-weight: 400;
+  }
+
+  /* Don't/Use rows */
+  .swap-card {
+    background: rgba(255,255,255,0.6);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .swap-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .swap-label.bad { color: #c0392b; }
+  .swap-label.good { color: #27ae60; }
+
+  .swap-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .swap-value.strikethrough { text-decoration: line-through; color: var(--text-light); font-family: 'DM Sans', sans-serif; }
+
+  .divider { height: 1px; background: rgba(244,168,130,0.2); margin: 10px 0; }
+
+  .savings-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #27ae60;
+    margin-top: 6px;
+  }
+
+  /* Routing strategy */
+  .route-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(244,168,130,0.15);
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  .route-item:last-child { border-bottom: none; }
+
+  .route-arrow { color: var(--peach-500); flex-shrink: 0; margin-top: 1px; font-weight: 700; }
+
+  /* Tracker tools */
+  .tracker-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 14px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.9);
+    margin-bottom: 8px;
+  }
+
+  .tracker-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    background: #2d1f1a;
+    color: #f4a882;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tracker-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.4;
+    text-align: right;
+    font-weight: 300;
+  }
+
+  /* Summary */
+  .summary-card {
+    margin: 0 16px;
+    background: linear-gradient(135deg, #2d1f1a 0%, #4a2518 100%);
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(244,168,130,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--peach-400);
+    margin-bottom: 14px;
+  }
+
+  .summary-badge .star { font-size: 14px; }
+
+  .summary-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: white;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .copy-summary-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .copy-summary-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2d1f1a;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .copied-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card, .summary-card {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+  .card:nth-child(5) { animation-delay: 0.33s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <a class="back-link" href="#">Back to Resources</a>
+    <div class="category-badge">
+      <div class="category-icon">⚡</div>
+      <span class="category-label">Claude Code Optimization</span>
+    </div>
+    <h1 class="hero-title">From $750/month to 12% of quota in 3 days</h1>
+    <p class="hero-subtitle">Same workflow. Same Claude. Just the right settings, cache habits, and a few small swaps that most people never make.</p>
+  </div>
+
+  <!-- Root Cause 1 -->
+  <div class="section">
+    <div class="card">
+      <p class="root-cause-label">Root Cause 1</p>
+      <div class="cause-header">
+        <div class="cause-icon orange">🗄️</div>
+        <h2 class="cause-title">Cache Misses</h2>
+      </div>
+      <p class="cause-desc">If your prompt cache breaks mid-session, you pay full price every turn instead of 0.1×.</p>
+
+      <div class="alert-box bad">
+        <p class="alert-title">⚠ What breaks the cache</p>
+        <div class="alert-item"><span class="icon">✕</span> Adding or removing a tool in the middle of a session</div>
+        <div class="alert-item"><span class="icon">✕</span> Switching models in the middle of a session</div>
+      </div>
+
+      <div class="alert-box good">
+        <p class="alert-title">✓ What to do</p>
+        <div class="alert-item"><span class="icon">✓</span> Decide your tools and model BEFORE you start the session</div>
+        <div class="alert-item"><span class="icon">✓</span> Never change them mid-session</div>
+        <div class="alert-item"><span class="icon">✓</span> A healthy cache hit rate is around 90%+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Root Cause 2 -->
+  <div class="section">
+    <div class="card">
+      <p class="root-cause-label">Root Cause 2</p>
+      <div class="cause-header">
+        <div class="cause-icon amber">📚</div>
+        <h2 class="cause-title">Context Bloat</h2>
+      </div>
+      <p class="cause-desc">The longer your session runs, the more Claude has to remember — and that costs tokens. Opus 4.6 defaults to a 1M context window which is overkill.</p>
+
+      <div class="code-box">
+        <p class="code-box-label">Settings to add</p>
+        <code>CLAUDE_CODE_DISABLE_1M_CONTEXT = 1<br>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = 80</code>
+        <button class="copy-btn" onclick="copyText('CLAUDE_CODE_DISABLE_1M_CONTEXT = 1\nCLAUDE_AUTOCOMPACT_PCT_OVERRIDE = 80', this)">📋 Copy</button>
+      </div>
+
+      <p class="habits-title">5 habits to keep context clean</p>
+      <div class="habit-row">
+        <span class="habit-tag tag-peach">/compact</span>
+        <span class="habit-desc">at 50% full or after every task — don't wait</span>
+      </div>
+      <div class="habit-row">
+        <span class="habit-tag tag-pink">/clear</span>
+        <span class="habit-desc">between unrelated tasks — fresh session, fresh cache</span>
+      </div>
+      <div class="habit-row">
+        <span class="habit-tag tag-rose">/rewind</span>
+        <span class="habit-desc">if a turn went wrong — cheaper than working around bad context</span>
+      </div>
+      <div class="habit-row">
+        <span class="habit-tag tag-amber">Subagents</span>
+        <span class="habit-desc">use for bulk work — keeps your main session lean</span>
+      </div>
+      <div class="habit-row">
+        <span class="habit-tag tag-dark">@filename</span>
+        <span class="habit-desc">tag files directly so Claude doesn't search for them</span>
+      </div>
+
+      <p class="habits-title">Subagent model guide</p>
+      <div class="subagent-grid">
+        <div class="subagent-item">
+          <p class="subagent-name">Haiku</p>
+          <p class="subagent-use">boring mechanical work</p>
+        </div>
+        <div class="subagent-item">
+          <p class="subagent-name">Sonnet</p>
+          <p class="subagent-use">research, code exploration</p>
+        </div>
+        <div class="subagent-item">
+          <p class="subagent-name">Opus</p>
+          <p class="subagent-use">planning, complex decisions only</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Root Cause 3 -->
+  <div class="section">
+    <div class="card">
+      <p class="root-cause-label">Root Cause 3</p>
+      <div class="cause-header">
+        <div class="cause-icon pink">⚙️</div>
+        <h2 class="cause-title">Wrong Model or Effort Level</h2>
+      </div>
+      <p class="cause-desc">Most people use Opus-level reasoning on tasks that only need Haiku. Default reasoning uses ~2× more tokens than medium.</p>
+
+      <p class="habits-title">Effort levels to set per prompt</p>
+      <div class="effort-grid">
+        <div class="effort-row">
+          <span class="habit-tag tag-peach">/effort low</span>
+          <span class="effort-desc">quick fixes, simple tasks</span>
+        </div>
+        <div class="effort-row">
+          <span class="habit-tag tag-amber">/effort medium</span>
+          <span class="effort-desc">most everyday problems</span>
+        </div>
+        <div class="effort-row">
+          <span class="habit-tag tag-coral">/effort high</span>
+          <span class="effort-desc">complex reasoning</span>
+        </div>
+        <div class="effort-row">
+          <span class="habit-tag tag-rose">/effort xhigh</span>
+          <span class="effort-desc">default for agentic tasks</span>
+        </div>
+        <div class="effort-row">
+          <span class="habit-tag tag-dark">/effort max</span>
+          <span class="effort-desc">almost never worth it</span>
+        </div>
+      </div>
+
+      <p class="habits-title">Model routing strategy</p>
+      <div class="route-item"><span class="route-arrow">→</span> Start a Sonnet session when work is simple — cheaper</div>
+      <div class="route-item"><span class="route-arrow">→</span> Start an Opus session when planning is involved — delegate the rest to Sonnet/Haiku</div>
+      <div class="route-item"><span class="route-arrow">→</span> If you keep hitting limits, route through OpenRouter — same Claude Code interface, ~1/12th the cost</div>
+    </div>
+  </div>
+
+  <!-- Root Cause 4 -->
+  <div class="section">
+    <div class="card">
+      <p class="root-cause-label">Root Cause 4</p>
+      <div class="cause-header">
+        <div class="cause-icon rose">📄</div>
+        <h2 class="cause-title">Wrong Input Format</h2>
+      </div>
+      <p class="cause-desc">Some file types cost way more tokens than necessary by default.</p>
+
+      <div class="swap-card">
+        <p class="swap-label bad">Don't use</p>
+        <p class="swap-value strikethrough">Screenshots for web pages</p>
+        <div class="divider"></div>
+        <p class="swap-label good">Use instead</p>
+        <p class="swap-value">agent-browser</p>
+        <p class="savings-badge">⚡ ~90% fewer tokens</p>
+      </div>
+
+      <div class="swap-card">
+        <p class="swap-label bad">Don't use</p>
+        <p class="swap-value strikethrough">Claude's built-in PDF reader</p>
+        <div class="divider"></div>
+        <p class="swap-label good">Use instead</p>
+        <p class="swap-value">pdftotext</p>
+        <p class="savings-badge">⚡ Avoids loading PDFs as images</p>
+      </div>
+
+      <div class="swap-card">
+        <p class="swap-label bad">Don't use</p>
+        <p class="swap-value strikethrough">Re-reading whole repo each task</p>
+        <div class="divider"></div>
+        <p class="swap-label good">Use instead</p>
+        <p class="swap-value">code-review-graph</p>
+        <p class="savings-badge">⚡ 6.8× fewer tokens on reviews, up to 49× on daily tasks</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Root Cause 5 -->
+  <div class="section">
+    <div class="card">
+      <p class="root-cause-label">Root Cause 5</p>
+      <div class="cause-header">
+        <div class="cause-icon coral">👁️</div>
+        <h2 class="cause-title">Not Watching Your Usage</h2>
+      </div>
+      <p class="cause-desc">You can't fix what you can't see. Three tools to track it.</p>
+
+      <div class="tracker-item">
+        <span class="tracker-tag">phuryn/claude-usage</span>
+        <span class="tracker-desc">Historical view, breakdown by day/week/session (Pro/Max/Team)</span>
+      </div>
+      <div class="tracker-item">
+        <span class="tracker-tag">Gronsten/claude-usage-monitor</span>
+        <span class="tracker-desc">Real-time, shows your current 5-hour window live</span>
+      </div>
+      <div class="tracker-item">
+        <span class="tracker-tag">platform.claude.com/usage/cache</span>
+        <span class="tracker-desc">Anthropic's cache dashboard — API users only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <p class="summary-badge"><span class="star">✦</span> The One-Line Summary</p>
+    <p class="summary-text">Lock your tools and model before you start. Compact early and often. Use cheaper models for simple tasks. Use the right input format. Track your usage. That's it.</p>
+    <button class="copy-summary-btn" onclick="copyText('Lock your tools and model before you start. Compact early and often. Use cheaper models for simple tasks. Use the right input format. Track your usage. That\'s it.', this)">📋 Copy summary</button>
+  </div>
+
+</div>
+<div class="copied-toast" id="toast">✓ Copied!</div>
+
+<script>
+  function copyText(text, btn) {
+    // Fallback that works everywhere
+    const el = document.createElement('textarea');
+    el.value = text;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+
+    // Also try modern API if available
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+
+    // Flash button
+    const original = btn.innerHTML;
+    btn.innerHTML = '✓ Copied!';
+    setTimeout(() => btn.innerHTML = original, 2000);
+  }
+</script>
+</body>
+</html>
