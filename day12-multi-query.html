@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Day 12 — Multi Query Retriever | RAG Series</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#c9614a;--accent2:#e07a5f;--accent3:#f4a58a;
+  --peach:#fdeee6;--peach2:#f5c9b4;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#c1121f;--red-bg:#ffe5e5;
+  --text:#2c1810;--text2:#5c3d2e;--muted:#9c7060;--heading:#1a0f0a;
+  --surface:#fff;--surface2:#fff8f5;--border:#f0d5c5;--border2:#e8c4ae;
+}
+body{
+  background:linear-gradient(145deg,#fdf0e8 0%,#fce8dc 30%,#fbe0d0 60%,#fad8c8 100%);
+  min-height:100vh;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:15px;line-height:1.7;padding-bottom:80px;
+}
+.topbar{
+  display:flex;align-items:center;gap:8px;padding:16px 24px;
+  background:rgba(255,255,255,0.78);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);
+  position:sticky;top:0;z-index:10;
+}
+.topbar a{color:var(--accent);text-decoration:none;font-weight:600;}
+.topbar a:hover{text-decoration:underline;}
+.hero{text-align:center;padding:52px 24px 40px;max-width:660px;margin:0 auto;}
+.hero-icon{font-size:44px;margin-bottom:14px;display:block;}
+.tag{
+  display:inline-block;background:rgba(201,97,74,0.1);color:var(--accent);
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 16px;border-radius:20px;border:1px solid rgba(201,97,74,0.25);margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);
+  font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--heading);
+}
+.hero p{color:var(--text2);font-size:15px;max-width:480px;margin:0 auto;}
+.content{max-width:660px;margin:0 auto;padding:0 24px;}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:26px;margin-bottom:14px;box-shadow:0 2px 14px rgba(180,90,60,.07);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent3));
+}
+.card-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.card-icon{font-size:28px;margin-bottom:8px;display:block;}
+.card h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--heading);margin-bottom:10px;}
+.card p{color:var(--text2);margin-bottom:10px;font-size:14px;}
+.card p:last-child{margin-bottom:0;}
+.box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-top:12px;}
+.box-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:14px;color:var(--text2);border-bottom:1px solid rgba(200,120,90,.07);}
+.row:last-child{border-bottom:none;}
+.ok .icon{background:var(--green-bg);color:var(--green);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.no .icon{background:var(--red-bg);color:var(--red);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.dot .icon{color:var(--accent2);flex-shrink:0;font-size:18px;margin-top:1px;}
+.arr .icon{color:var(--accent);flex-shrink:0;font-size:14px;margin-top:3px;}
+.hi{background:var(--peach);border:1px solid var(--border2);border-left:4px solid var(--accent2);border-radius:10px;padding:13px 16px;margin-top:12px;font-size:14px;color:var(--text2);}
+.step{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid rgba(200,120,90,.07);}
+.step:last-child{border-bottom:none;}
+.step-n{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step strong{color:var(--heading);font-size:14px;display:block;margin-bottom:2px;}
+.step span{color:var(--muted);font-size:13px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.pill{background:var(--peach);border:1px solid var(--border2);border-radius:20px;padding:3px 13px;font-size:13px;color:var(--accent);font-weight:500;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+@media(max-width:480px){.grid2{grid-template-columns:1fr;}}
+.gbad{background:var(--red-bg);border:1px solid #ffc9c9;border-radius:10px;padding:14px;}
+.ggood{background:var(--green-bg);border:1px solid #b7e4c7;border-radius:10px;padding:14px;}
+.gbad strong,.ggood strong{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
+.gbad strong{color:var(--red);}
+.ggood strong{color:var(--green);}
+.gbad li,.ggood li{font-size:13px;color:var(--text2);margin-bottom:5px;list-style:none;}
+.sumbox{background:linear-gradient(135deg,#fff5f0,#ffeae0);border:1px solid var(--border2);border-radius:18px;padding:26px;margin-top:28px;text-align:center;box-shadow:0 4px 20px rgba(180,90,60,.09);}
+.sumbox .star{font-size:22px;margin-bottom:10px;display:block;}
+.sumbox p{color:var(--text2);font-size:14px;line-height:1.8;max-width:520px;margin:0 auto;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:22px;border-top:1px solid var(--border);}
+.nav a{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;padding:8px 18px;background:var(--peach);border:1px solid var(--border2);border-radius:20px;}
+.nav a:hover{background:var(--peach2);}
+.nav span{color:var(--muted);font-size:12px;}
+</style>
+
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html">&#8592; Back to Series</a>
+  <span>/</span>
+  <span>Day 12 of 20</span>
+</div>
+<div class="hero">
+  <span class="hero-icon">🔍</span>
+  <div class="tag">RAG Series &middot; Day 12</div>
+  <h1>Multi Query Retriever</h1>
+  <p>One vague query misses too much. Multi Query Retriever generates multiple search variants to dramatically broaden coverage.</p>
+</div>
+<div class="content">
+
+<div class="card">
+  <div class="card-label">The Problem</div><span class="card-icon">🌫️</span>
+  <h2>One Vague Query Is Not Enough</h2>
+  <p>Real users ask broad, vague questions. "How to stay healthy?" could mean diet, exercise, sleep, or mental health. A single vector search on that phrase captures only one interpretation — and misses everything else. The result is an incomplete, narrow answer.</p>
+  <div class="hi">💡 One vague query = limited retrieval = incomplete context = mediocre answer. Multi Query Retriever breaks this chain.</div>
+</div>
+<div class="card">
+  <div class="card-label">What Multi Query Does</div><span class="card-icon">🔍</span>
+  <h2>Generate Multiple Queries, Search Each One</h2>
+  <p>An LLM automatically rewrites the original question into 3–5 different formulations, each from a different angle. The system searches the vector store with each query separately and merges the results.</p>
+  <div class="box">
+    <div class="box-title">Example transformation</div>
+    <div class="row arr"><span class="icon">&#8594;</span><span><strong>Original:</strong> How to stay healthy?</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>Query 1: What foods should I eat for good long-term health?</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>Query 2: How often should I exercise to maintain physical fitness?</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>Query 3: What lifestyle habits improve mental and physical wellbeing?</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">Step by Step</div><span class="card-icon">⚙️</span>
+  <h2>How It Works Internally</h2>
+  <div class="box">
+    <div class="step"><div class="step-n">1</div><div><strong>Original query sent to LLM</strong><span>LLM generates 3–5 diverse reformulations of the question</span></div></div>
+    <div class="step"><div class="step-n">2</div><div><strong>Each query searches the vector store</strong><span>Every variant retrieves its own set of relevant documents</span></div></div>
+    <div class="step"><div class="step-n">3</div><div><strong>Results merged and deduplicated</strong><span>All retrieved documents combined, exact duplicates removed</span></div></div>
+    <div class="step"><div class="step-n">4</div><div><strong>Rich diverse context for the LLM</strong><span>Multiple perspectives — much more complete final answer</span></div></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">When to Use It</div><span class="card-icon">✨</span>
+  <h2>Ideal Use Cases</h2>
+  <div class="box">
+    <div class="row ok"><span class="icon">&#10003;</span><span>Your users tend to ask broad, open-ended questions</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>A topic has multiple sub-aspects that should all be covered</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>Standard retrieval keeps missing relevant documents you know exist</span></div>
+    <div class="row ok"><span class="icon">&#10003;</span><span>Answer quality is mediocre despite having the right documents indexed</span></div>
+  </div>
+  <div class="hi">⚠️ Trade-off: requires one extra LLM call to generate query variants. Slightly higher latency and cost — worth it for complex queries.</div>
+</div>
+<div class="sumbox"><span class="star">✦</span>
+<p>Multi Query Retriever attacks the single biggest weakness of vector search: vague queries that only capture one interpretation. By generating multiple query variants and searching with all of them, it dramatically broadens retrieval coverage — giving your LLM a richer, more complete context to work from.</p></div>
+
+<div class="nav">
+  <a href="day11-mmr-retriever.html">&#8592; Day 11</a>
+  <span>Day 12 / 20</span>
+  <a href="day13-contextual-compression.html">Day 13 &#8594;</a>
+</div>
+</div>
+</body>
+</html>

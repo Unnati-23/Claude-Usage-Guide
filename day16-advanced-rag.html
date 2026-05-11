@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Day 16 — Advanced RAG Techniques | RAG Series</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#c9614a;--accent2:#e07a5f;--accent3:#f4a58a;
+  --peach:#fdeee6;--peach2:#f5c9b4;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#c1121f;--red-bg:#ffe5e5;
+  --text:#2c1810;--text2:#5c3d2e;--muted:#9c7060;--heading:#1a0f0a;
+  --surface:#fff;--surface2:#fff8f5;--border:#f0d5c5;--border2:#e8c4ae;
+}
+body{
+  background:linear-gradient(145deg,#fdf0e8 0%,#fce8dc 30%,#fbe0d0 60%,#fad8c8 100%);
+  min-height:100vh;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:15px;line-height:1.7;padding-bottom:80px;
+}
+.topbar{
+  display:flex;align-items:center;gap:8px;padding:16px 24px;
+  background:rgba(255,255,255,0.78);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);
+  position:sticky;top:0;z-index:10;
+}
+.topbar a{color:var(--accent);text-decoration:none;font-weight:600;}
+.topbar a:hover{text-decoration:underline;}
+.hero{text-align:center;padding:52px 24px 40px;max-width:660px;margin:0 auto;}
+.hero-icon{font-size:44px;margin-bottom:14px;display:block;}
+.tag{
+  display:inline-block;background:rgba(201,97,74,0.1);color:var(--accent);
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 16px;border-radius:20px;border:1px solid rgba(201,97,74,0.25);margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);
+  font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--heading);
+}
+.hero p{color:var(--text2);font-size:15px;max-width:480px;margin:0 auto;}
+.content{max-width:660px;margin:0 auto;padding:0 24px;}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:26px;margin-bottom:14px;box-shadow:0 2px 14px rgba(180,90,60,.07);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent3));
+}
+.card-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.card-icon{font-size:28px;margin-bottom:8px;display:block;}
+.card h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--heading);margin-bottom:10px;}
+.card p{color:var(--text2);margin-bottom:10px;font-size:14px;}
+.card p:last-child{margin-bottom:0;}
+.box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-top:12px;}
+.box-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:14px;color:var(--text2);border-bottom:1px solid rgba(200,120,90,.07);}
+.row:last-child{border-bottom:none;}
+.ok .icon{background:var(--green-bg);color:var(--green);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.no .icon{background:var(--red-bg);color:var(--red);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.dot .icon{color:var(--accent2);flex-shrink:0;font-size:18px;margin-top:1px;}
+.arr .icon{color:var(--accent);flex-shrink:0;font-size:14px;margin-top:3px;}
+.hi{background:var(--peach);border:1px solid var(--border2);border-left:4px solid var(--accent2);border-radius:10px;padding:13px 16px;margin-top:12px;font-size:14px;color:var(--text2);}
+.step{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid rgba(200,120,90,.07);}
+.step:last-child{border-bottom:none;}
+.step-n{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step strong{color:var(--heading);font-size:14px;display:block;margin-bottom:2px;}
+.step span{color:var(--muted);font-size:13px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.pill{background:var(--peach);border:1px solid var(--border2);border-radius:20px;padding:3px 13px;font-size:13px;color:var(--accent);font-weight:500;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+@media(max-width:480px){.grid2{grid-template-columns:1fr;}}
+.gbad{background:var(--red-bg);border:1px solid #ffc9c9;border-radius:10px;padding:14px;}
+.ggood{background:var(--green-bg);border:1px solid #b7e4c7;border-radius:10px;padding:14px;}
+.gbad strong,.ggood strong{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
+.gbad strong{color:var(--red);}
+.ggood strong{color:var(--green);}
+.gbad li,.ggood li{font-size:13px;color:var(--text2);margin-bottom:5px;list-style:none;}
+.sumbox{background:linear-gradient(135deg,#fff5f0,#ffeae0);border:1px solid var(--border2);border-radius:18px;padding:26px;margin-top:28px;text-align:center;box-shadow:0 4px 20px rgba(180,90,60,.09);}
+.sumbox .star{font-size:22px;margin-bottom:10px;display:block;}
+.sumbox p{color:var(--text2);font-size:14px;line-height:1.8;max-width:520px;margin:0 auto;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:22px;border-top:1px solid var(--border);}
+.nav a{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;padding:8px 18px;background:var(--peach);border:1px solid var(--border2);border-radius:20px;}
+.nav a:hover{background:var(--peach2);}
+.nav span{color:var(--muted);font-size:12px;}
+</style>
+
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html">&#8592; Back to Series</a>
+  <span>/</span>
+  <span>Day 16 of 20</span>
+</div>
+<div class="hero">
+  <span class="hero-icon">🔬</span>
+  <div class="tag">RAG Series &middot; Day 16</div>
+  <h1>Advanced RAG Techniques</h1>
+  <p>Production-grade RAG goes beyond the basics — query rewriting, re-ranking, hybrid search, and more, all explained.</p>
+</div>
+<div class="content">
+
+<div class="card">
+  <div class="card-label">Beyond Basic RAG</div><span class="card-icon">🔬</span>
+  <h2>Why Advanced Techniques Matter</h2>
+  <p>Basic RAG is a great prototype. But in production you face challenges — vague queries, irrelevant documents, hallucination, poor retrieval on certain document types. Advanced RAG techniques address these systematically at each stage of the pipeline.</p>
+  <div class="hi">💡 Basic RAG = Good prototype. Advanced RAG = Production-ready system. Every major RAG system in industry uses at least some of these techniques.</div>
+</div>
+<div class="card">
+  <div class="card-label">Indexing Improvements</div><span class="card-icon">📥</span>
+  <h2>Making Your Knowledge Base Better</h2>
+  <div class="box">
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Document Cleaning</strong> — Fix OCR errors, normalize formatting before indexing</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Semantic Chunking</strong> — Split where meaning changes, not at fixed character counts</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Metadata Enrichment</strong> — Add source, date, author for precise filtering later</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Better Vector Stores</strong> — Move from FAISS to Pinecone or Qdrant for production scale</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">Retrieval Improvements</div><span class="card-icon">🔍</span>
+  <h2>Smarter Searching</h2>
+  <div class="box"><div class="box-title">Pre-retrieval</div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Query Rewriting</strong> — Convert vague queries into better search queries automatically</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Multi Query</strong> — Generate multiple query variants for broader coverage</span></div>
+  </div>
+  <div class="box" style="margin-top:10px"><div class="box-title">During retrieval</div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>MMR</strong> — Diverse results — no redundant documents</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Hybrid Search</strong> — Combine semantic search with keyword (BM25) search</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Re-ranking</strong> — Use an LLM to re-rank retrieved documents by actual relevance</span></div>
+  </div>
+  <div class="box" style="margin-top:10px"><div class="box-title">Post-retrieval</div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Contextual Compression</strong> — Extract only relevant parts from each retrieved document</span></div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-label">Generation Improvements</div><span class="card-icon">✨</span>
+  <h2>Better Answers</h2>
+  <div class="box">
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Answer with Citations</strong> — Every fact cited with its source document</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Strict Grounding</strong> — Force LLM to answer only from provided context</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Guard Rails</strong> — Block inappropriate or off-topic responses</span></div>
+    <div class="row dot"><span class="icon">&#183;</span><span><strong>Context Optimization</strong> — Trim context to fit within LLM token limits efficiently</span></div>
+  </div>
+</div>
+<div class="sumbox"><span class="star">✦</span>
+<p>Advanced RAG is a layered system — improvements are possible at indexing, retrieval, and generation stages independently. Apply them one at a time, measure the impact, and keep what works. This iterative approach is how production RAG systems are built and refined over time.</p></div>
+
+<div class="nav">
+  <a href="day15-rag-chain.html">&#8592; Day 15</a>
+  <span>Day 16 / 20</span>
+  <a href="day17-corrective-rag.html">Day 17 &#8594;</a>
+</div>
+</div>
+</body>
+</html>
