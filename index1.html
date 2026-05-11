@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RAG Series — 20-Day Complete Guide</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#c9614a;--accent2:#e07a5f;--accent3:#f4a58a;
+  --peach:#fdeee6;--peach2:#f5c9b4;
+  --green:#2d6a4f;--green-bg:#d8f3dc;
+  --red:#c1121f;--red-bg:#ffe5e5;
+  --text:#2c1810;--text2:#5c3d2e;--muted:#9c7060;--heading:#1a0f0a;
+  --surface:#fff;--surface2:#fff8f5;--border:#f0d5c5;--border2:#e8c4ae;
+}
+body{
+  background:linear-gradient(145deg,#fdf0e8 0%,#fce8dc 30%,#fbe0d0 60%,#fad8c8 100%);
+  min-height:100vh;color:var(--text);font-family:'DM Sans',sans-serif;
+  font-size:15px;line-height:1.7;padding-bottom:80px;
+}
+.topbar{
+  display:flex;align-items:center;gap:8px;padding:16px 24px;
+  background:rgba(255,255,255,0.78);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);
+  position:sticky;top:0;z-index:10;
+}
+.topbar a{color:var(--accent);text-decoration:none;font-weight:600;}
+.topbar a:hover{text-decoration:underline;}
+.hero{text-align:center;padding:52px 24px 40px;max-width:660px;margin:0 auto;}
+.hero-icon{font-size:44px;margin-bottom:14px;display:block;}
+.tag{
+  display:inline-block;background:rgba(201,97,74,0.1);color:var(--accent);
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 16px;border-radius:20px;border:1px solid rgba(201,97,74,0.25);margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);
+  font-weight:700;line-height:1.2;margin-bottom:12px;color:var(--heading);
+}
+.hero p{color:var(--text2);font-size:15px;max-width:480px;margin:0 auto;}
+.content{max-width:660px;margin:0 auto;padding:0 24px;}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:18px;
+  padding:26px;margin-bottom:14px;box-shadow:0 2px 14px rgba(180,90,60,.07);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--accent2),var(--accent3));
+}
+.card-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.card-icon{font-size:28px;margin-bottom:8px;display:block;}
+.card h2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--heading);margin-bottom:10px;}
+.card p{color:var(--text2);margin-bottom:10px;font-size:14px;}
+.card p:last-child{margin-bottom:0;}
+.box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-top:12px;}
+.box-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:14px;color:var(--text2);border-bottom:1px solid rgba(200,120,90,.07);}
+.row:last-child{border-bottom:none;}
+.ok .icon{background:var(--green-bg);color:var(--green);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.no .icon{background:var(--red-bg);color:var(--red);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+.dot .icon{color:var(--accent2);flex-shrink:0;font-size:18px;margin-top:1px;}
+.arr .icon{color:var(--accent);flex-shrink:0;font-size:14px;margin-top:3px;}
+.hi{background:var(--peach);border:1px solid var(--border2);border-left:4px solid var(--accent2);border-radius:10px;padding:13px 16px;margin-top:12px;font-size:14px;color:var(--text2);}
+.step{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid rgba(200,120,90,.07);}
+.step:last-child{border-bottom:none;}
+.step-n{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step strong{color:var(--heading);font-size:14px;display:block;margin-bottom:2px;}
+.step span{color:var(--muted);font-size:13px;}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.pill{background:var(--peach);border:1px solid var(--border2);border-radius:20px;padding:3px 13px;font-size:13px;color:var(--accent);font-weight:500;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+@media(max-width:480px){.grid2{grid-template-columns:1fr;}}
+.gbad{background:var(--red-bg);border:1px solid #ffc9c9;border-radius:10px;padding:14px;}
+.ggood{background:var(--green-bg);border:1px solid #b7e4c7;border-radius:10px;padding:14px;}
+.gbad strong,.ggood strong{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
+.gbad strong{color:var(--red);}
+.ggood strong{color:var(--green);}
+.gbad li,.ggood li{font-size:13px;color:var(--text2);margin-bottom:5px;list-style:none;}
+.sumbox{background:linear-gradient(135deg,#fff5f0,#ffeae0);border:1px solid var(--border2);border-radius:18px;padding:26px;margin-top:28px;text-align:center;box-shadow:0 4px 20px rgba(180,90,60,.09);}
+.sumbox .star{font-size:22px;margin-bottom:10px;display:block;}
+.sumbox p{color:var(--text2);font-size:14px;line-height:1.8;max-width:520px;margin:0 auto;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:22px;border-top:1px solid var(--border);}
+.nav a{color:var(--accent);text-decoration:none;font-size:13px;font-weight:600;padding:8px 18px;background:var(--peach);border:1px solid var(--border2);border-radius:20px;}
+.nav a:hover{background:var(--peach2);}
+.nav span{color:var(--muted);font-size:12px;}
+</style>
+
+<style>
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:28px 0 10px;}
+.dcard{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:8px;text-decoration:none;color:var(--text);box-shadow:0 2px 10px rgba(180,90,60,.06);transition:border-color .2s,box-shadow .2s;}
+.dcard:hover{border-color:var(--accent2);box-shadow:0 4px 18px rgba(180,90,60,.12);}
+.dnum{width:36px;height:36px;border-radius:8px;background:var(--peach);border:1px solid var(--border2);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dicon{font-size:22px;flex-shrink:0;}
+.dbody{flex:1;min-width:0;}
+.dtitle{font-size:14px;font-weight:600;color:var(--heading);margin-bottom:2px;}
+.dsub{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.darr{color:var(--border2);font-size:16px;flex-shrink:0;}
+.dcard:hover .darr{color:var(--accent);}
+.stats{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;margin-top:24px;}
+.stat .n{font-size:32px;font-weight:700;color:var(--accent);display:block;}
+.stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;}
+</style>
+</head>
+<body>
+<div class="hero">
+  <span class="hero-icon">📚</span>
+  <div class="tag">Complete Guide Series</div>
+  <h1>RAG — 20 Day Series</h1>
+  <p>From the basics of Retrieval Augmented Generation to advanced production techniques — everything in one place.</p>
+  <div class="stats">
+    <div class="stat"><span class="n">20</span><span class="l">Guides</span></div>
+    <div class="stat"><span class="n">9</span><span class="l">Core Concepts</span></div>
+    <div class="stat"><span class="n">3</span><span class="l">Advanced Techniques</span></div>
+  </div>
+</div>
+<div class="content">
+<div class="sec-label">Foundation</div><a class="dcard" href="day01-what-is-rag.html">
+  <div class="dnum">01</div>
+  <span class="dicon">🤖</span>
+  <div class="dbody"><div class="dtitle">What Is RAG?</div><div class="dsub">Complete introduction — what, why, and how of RAG</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day02-three-problems.html">
+  <div class="dnum">02</div>
+  <span class="dicon">💥</span>
+  <div class="dbody"><div class="dtitle">3 Problems RAG Solves</div><div class="dsub">Private data, outdated info, hallucination — all three fixed</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day03-finetuning-vs-rag.html">
+  <div class="dnum">03</div>
+  <span class="dicon">⚔️</span>
+  <div class="dbody"><div class="dtitle">Fine-Tuning vs RAG</div><div class="dsub">When to use each — complete cost and capability comparison</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day04-rag-architecture.html">
+  <div class="dnum">04</div>
+  <span class="dicon">🏗️</span>
+  <div class="dbody"><div class="dtitle">RAG 4-Step Architecture</div><div class="dsub">Indexing → Retrieval → Augmentation → Generation</div></div>
+  <span class="darr">&#8594;</span>
+</a><div class="sec-label">Core Components</div><a class="dcard" href="day05-document-loaders.html">
+  <div class="dnum">05</div>
+  <span class="dicon">📂</span>
+  <div class="dbody"><div class="dtitle">Document Loaders</div><div class="dsub">PDF, web, CSV — load from any source into a standard format</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day06-text-splitting.html">
+  <div class="dnum">06</div>
+  <span class="dicon">✂️</span>
+  <div class="dbody"><div class="dtitle">Text Splitting</div><div class="dsub">chunk_size, chunk_overlap, and 4 splitting strategies</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day07-recursive-splitter.html">
+  <div class="dnum">07</div>
+  <span class="dicon">🔄</span>
+  <div class="dbody"><div class="dtitle">Recursive Character Text Splitter</div><div class="dsub">The production go-to splitter — how it really works</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day08-embeddings.html">
+  <div class="dnum">08</div>
+  <span class="dicon">🧠</span>
+  <div class="dbody"><div class="dtitle">Embeddings</div><div class="dsub">Text to vectors — how semantic meaning becomes searchable numbers</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day09-vector-stores.html">
+  <div class="dnum">09</div>
+  <span class="dicon">🗄️</span>
+  <div class="dbody"><div class="dtitle">Vector Stores</div><div class="dsub">FAISS, ChromaDB, Pinecone — when and why to use each</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day10-retrievers.html">
+  <div class="dnum">10</div>
+  <span class="dicon">❤️</span>
+  <div class="dbody"><div class="dtitle">Retrievers — Heart of RAG</div><div class="dsub">Every retriever type in LangChain — complete guide</div></div>
+  <span class="darr">&#8594;</span>
+</a><div class="sec-label">Advanced Retrievers</div><a class="dcard" href="day11-mmr-retriever.html">
+  <div class="dnum">11</div>
+  <span class="dicon">🎯</span>
+  <div class="dbody"><div class="dtitle">MMR Retriever</div><div class="dsub">Eliminate redundant results with Maximum Marginal Relevance</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day12-multi-query.html">
+  <div class="dnum">12</div>
+  <span class="dicon">🔍</span>
+  <div class="dbody"><div class="dtitle">Multi Query Retriever</div><div class="dsub">Generate multiple query variants for broader retrieval coverage</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day13-contextual-compression.html">
+  <div class="dnum">13</div>
+  <span class="dicon">🗜️</span>
+  <div class="dbody"><div class="dtitle">Contextual Compression</div><div class="dsub">Extract only relevant sentences — remove all retrieval noise</div></div>
+  <span class="darr">&#8594;</span>
+</a><div class="sec-label">Building &amp; Production</div><a class="dcard" href="day14-first-rag-system.html">
+  <div class="dnum">14</div>
+  <span class="dicon">🚀</span>
+  <div class="dbody"><div class="dtitle">Build Your First RAG System</div><div class="dsub">YouTube chatbot — step by step, 30 lines of LangChain code</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day15-rag-chain.html">
+  <div class="dnum">15</div>
+  <span class="dicon">⛓️</span>
+  <div class="dbody"><div class="dtitle">RAG Chain Architecture</div><div class="dsub">One invoke call runs the entire pipeline — chains explained</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day16-advanced-rag.html">
+  <div class="dnum">16</div>
+  <span class="dicon">🔬</span>
+  <div class="dbody"><div class="dtitle">Advanced RAG Techniques</div><div class="dsub">Production techniques — rewriting, hybrid search, re-ranking</div></div>
+  <span class="darr">&#8594;</span>
+</a><div class="sec-label">Expert Level</div><a class="dcard" href="day17-corrective-rag.html">
+  <div class="dnum">17</div>
+  <span class="dicon">🔧</span>
+  <div class="dbody"><div class="dtitle">Corrective RAG (CRAG)</div><div class="dsub">Self-correcting retrieval — evaluator, refinement, web fallback</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day18-self-rag.html">
+  <div class="dnum">18</div>
+  <span class="dicon">🪞</span>
+  <div class="dbody"><div class="dtitle">Self RAG</div><div class="dsub">Four self-reflection checkpoints for verified, accurate answers</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day19-hallucination.html">
+  <div class="dnum">19</div>
+  <span class="dicon">🛡️</span>
+  <div class="dbody"><div class="dtitle">Stopping Hallucination</div><div class="dsub">Three-layer anti-hallucination strategy for production RAG</div></div>
+  <span class="darr">&#8594;</span>
+</a><a class="dcard" href="day20-series-wrap.html">
+  <div class="dnum">20</div>
+  <span class="dicon">🎉</span>
+  <div class="dbody"><div class="dtitle">Series Wrap Up</div><div class="dsub">Recap, cheat sheet, project ideas, and what to learn next</div></div>
+  <span class="darr">&#8594;</span>
+</a>
+</div>
+</body>
+</html>
