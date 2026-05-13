@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 — Document Parsing for RAG | 20-Day RAG Series by Unnati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --peach:        #FFAB91;
+    --peach-light:  #FFD0BB;
+    --peach-soft:   #FFF0E8;
+    --pink:         #F48FB1;
+    --pink-light:   #FCE4EC;
+    --pink-deep:    #E91E8C;
+    --rose:         #FFE0CC;
+    --gold:         #C9A96E;
+    --cream:        #FFF8F3;
+    --text-dark:    #3D2B1F;
+    --text-mid:     #7A4F3A;
+    --text-soft:    #A0745C;
+    --border:       rgba(244,143,177,0.28);
+    --shadow:       rgba(255,100,130,0.10);
+    --card-bg:      rgba(255,255,255,0.65);
+    --accent:       #E8507A;
+    --accent2:      #FF7043;
+    --teal:         #00897B;
+    --blue:         #5C6BC0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #FFF0E8 0%, #FCE4EC 35%, #FFE4CC 65%, #FFF0F5 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 650px; height: 650px;
+    background: radial-gradient(circle, rgba(255,171,145,0.22) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatA 14s ease-in-out infinite;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -180px; right: -180px;
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(244,143,177,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatB 18s ease-in-out infinite;
+    z-index: 0;
+  }
+  @keyframes floatA {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(40px,30px) scale(1.05); }
+  }
+  @keyframes floatB {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(-30px,-40px) scale(1.08); }
+  }
+
+  .progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px; width: 0%;
+    background: linear-gradient(90deg, var(--peach), var(--pink), var(--accent));
+    z-index: 1000;
+    transition: width 0.1s;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .navbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,240,232,0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 44px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .navbar-left { display: flex; align-items: center; gap: 12px; }
+  .day-badge {
+    background: linear-gradient(135deg, var(--peach), var(--pink));
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .navbar-title { font-size: 14px; font-weight: 600; color: var(--text-mid); }
+  .navbar-right  { font-size: 12px; color: var(--text-soft); }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  .hero {
+    padding: 72px 0 52px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--peach); }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 700; line-height: 1.18;
+    color: var(--text-dark);
+    margin-bottom: 18px;
+    max-width: 700px; margin-left: auto; margin-right: auto;
+  }
+  h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--accent), var(--pink-deep));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 17px; color: var(--text-mid);
+    max-width: 560px; margin: 0 auto 32px;
+    line-height: 1.65; font-weight: 400;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .hero-tag {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--border); border-radius: 20px;
+    font-size: 12px; font-weight: 500; color: var(--text-mid); padding: 5px 14px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 24px var(--shadow), 0 1px 0 rgba(255,255,255,0.8) inset;
+    margin-bottom: 20px;
+  }
+
+  .section { margin-bottom: 52px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .section-icon {
+    width: 40px; height: 40px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    background: rgba(255,255,255,0.7); border: 1px solid var(--border);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--text-dark); }
+  h3 { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; }
+  p  { color: var(--text-mid); font-size: 14.5px; line-height: 1.7; }
+
+  .callout { border-radius: 14px; padding: 18px 22px; margin-bottom: 18px; border-left: 3px solid; }
+  .callout.danger  { background: rgba(255,100,100,0.07); border-color: #E57373; }
+  .callout.info    { background: rgba(92,107,192,0.07);  border-color: var(--blue); }
+  .callout.success { background: rgba(0,137,123,0.07);   border-color: var(--teal); }
+  .callout.warn    { background: rgba(255,112,67,0.08);  border-color: var(--accent2); }
+  .callout-title { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px; color: var(--text-soft); }
+  .callout p { font-size: 13.5px; }
+
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 580px) { .problem-grid { grid-template-columns: 1fr; } }
+  .problem-card {
+    background: rgba(255,255,255,0.6); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px; position: relative; overflow: hidden;
+  }
+  .problem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .problem-card.c1::before { background: linear-gradient(90deg, #FF7043, #FFAB91); }
+  .problem-card.c2::before { background: linear-gradient(90deg, #F48FB1, #E91E8C); }
+  .problem-card.c3::before { background: linear-gradient(90deg, #9C27B0, #7B1FA2); }
+  .problem-card.c4::before { background: linear-gradient(90deg, #5C6BC0, #3949AB); }
+  .problem-card .pcard-title { font-size: 13px; font-weight: 700; margin-bottom: 7px; color: var(--text-dark); }
+  .problem-card p { font-size: 12.5px; color: var(--text-soft); line-height: 1.5; }
+
+  .table-wrap { background: rgba(255,255,255,0.6); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: rgba(255,240,232,0.8); padding: 11px 15px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+  tbody td { padding: 11px 15px; border-bottom: 1px solid rgba(244,143,177,0.12); vertical-align: top; line-height: 1.5; color: var(--text-mid); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,171,145,0.06); }
+
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .tag-rose   { background: rgba(244,143,177,0.18); color: #C2185B; }
+  .tag-teal   { background: rgba(0,137,123,0.12);   color: #00695C; }
+  .tag-blue   { background: rgba(92,107,192,0.12);  color: #283593; }
+  .tag-purple { background: rgba(156,39,176,0.10);  color: #6A1B9A; }
+
+  .pipeline { position: relative; margin-bottom: 22px; }
+  .pipeline::before { content: ''; position: absolute; left: 19px; top: 22px; bottom: 22px; width: 2px; background: linear-gradient(180deg, var(--peach), var(--pink)); }
+  .pipeline-step { display: flex; gap: 16px; padding: 14px 0; position: relative; z-index: 1; }
+  .pnum { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, var(--peach-light), var(--pink-light)); border: 2px solid var(--peach); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .pstep-body { padding-top: 8px; }
+  .pstep-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: var(--text-dark); }
+  .pstep-body p  { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .tool-grid { grid-template-columns: 1fr; } }
+  .tool-card { background: rgba(255,255,255,0.65); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 3px 16px var(--shadow); }
+  .tool-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(244,143,177,0.18); }
+  .tool-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .tool-logo { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid var(--border); background: rgba(255,255,255,0.8); }
+  .tool-name { font-size: 15px; font-weight: 800; color: var(--text-dark); }
+  .tool-sub  { font-size: 11px; color: var(--text-soft); margin-top: 1px; }
+  .tool-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tool-feats { list-style: none; }
+  .tool-feats li { font-size: 12.5px; color: var(--text-soft); padding: 5px 0; border-bottom: 1px solid rgba(244,143,177,0.12); display: flex; gap: 7px; align-items: flex-start; line-height: 1.45; }
+  .tool-feats li:last-child { border-bottom: none; }
+  .tool-feats li::before { content: '›'; color: var(--peach); font-size: 14px; flex-shrink: 0; line-height: 1.2; }
+
+  .code-wrap { background: #2D1B14; border: 1px solid rgba(244,143,177,0.18); border-radius: 14px; overflow: hidden; margin-bottom: 18px; box-shadow: 0 4px 20px rgba(61,43,31,0.12); }
+  .code-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .code-lang  { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--peach); }
+  .code-label { font-size: 11px; color: rgba(255,255,255,0.35); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.75; color: #e0cfc8; }
+  .cm { color: #7a6258; } .ck { color: #FFB3C6; } .cs { color: #FFAB91; }
+  .cn { color: #80CBC4; } .cf { color: #CE93D8; } .co { color: #FFD180; }
+
+  .checklist { list-style: none; margin-bottom: 18px; }
+  .checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid rgba(244,143,177,0.12); font-size: 14px; color: var(--text-mid); line-height: 1.5; }
+  .checklist li:last-child { border-bottom: none; }
+  .cbox { width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+  .cbox-good { background: rgba(0,137,123,0.12); border: 1px solid rgba(0,137,123,0.35); color: var(--teal); }
+  .cbox-bad  { background: rgba(229,115,115,0.12); border: 1px solid rgba(229,115,115,0.35); color: #E57373; }
+
+  .bench-rows { margin-bottom: 18px; }
+  .bench-row  { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .bench-label { font-size: 13px; font-weight: 600; width: 120px; flex-shrink: 0; color: var(--text-dark); }
+  .bench-track { flex: 1; height: 9px; border-radius: 99px; background: rgba(255,171,145,0.18); overflow: hidden; }
+  .bench-fill  { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--peach), var(--pink)); }
+  .bench-val   { font-size: 12px; color: var(--text-soft); width: 46px; text-align: right; font-family: 'DM Mono', monospace; }
+
+  .quote { border-left: 3px solid var(--peach); padding: 14px 20px; background: rgba(255,255,255,0.5); border-radius: 0 12px 12px 0; margin: 18px 0; }
+  .quote p { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.05rem; color: var(--text-dark); line-height: 1.6; }
+  .quote-src { font-size: 11.5px; color: var(--text-soft); margin-top: 7px; font-family: 'DM Sans', sans-serif; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(244,143,177,0.35), transparent); margin: 48px 0; }
+
+  .series-nav { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+  .snav-pill { background: rgba(255,255,255,0.55); border: 1px solid var(--border); color: var(--text-soft); font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 20px; text-decoration: none; transition: all 0.2s; }
+  .snav-pill:hover { background: rgba(255,171,145,0.2); color: var(--accent); border-color: var(--peach); }
+  .snav-pill.active { background: linear-gradient(135deg, var(--peach), var(--pink)); border-color: transparent; color: #fff; }
+
+  footer { text-align: center; padding: 36px 32px; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  footer p { font-size: 12px; color: var(--text-soft); }
+  footer span { color: var(--accent); }
+
+  strong { color: var(--text-dark); }
+  .hl-rose { color: var(--accent); font-weight: 700; }
+  .hl-teal { color: var(--teal);   font-weight: 700; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--peach-soft); }
+  ::-webkit-scrollbar-thumb { background: var(--peach); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="prog"></div>
+
+<nav class="navbar">
+  <div class="navbar-left">
+    <span class="day-badge">Day 3 / 20</span>
+    <span class="navbar-title">20-Day RAG Series</span>
+  </div>
+  <span class="navbar-right">by Unnati &nbsp;·&nbsp; Document Parsing</span>
+</nav>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-dot"></span>
+      RAG Series — Document Parsing
+    </div>
+    <h1>Why Your RAG Gives Wrong Answers — And It's <em>Not the LLM's Fault</em></h1>
+    <p class="hero-sub">
+      Sahi jawab tab milega jab sahi cheez padhi ho. Your documents are being mangled before the LLM even sees them — let's fix that.
+    </p>
+    <div class="hero-tags">
+      <span class="hero-tag">🦙 LlamaParse v2 (2026)</span>
+      <span class="hero-tag">🔬 Docling + Granite-Docling-258M</span>
+      <span class="hero-tag">💻 Production Code</span>
+      <span class="hero-tag">📊 Real Benchmarks</span>
+      <span class="hero-tag">🗓 Updated May 2026</span>
+    </div>
+  </section>
+
+  <!-- SECTION 1 -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">⚠️</div>
+      <h2>The Real Problem: Broken Input = Broken Output</h2>
+    </div>
+    <div class="callout danger">
+      <div class="callout-title">🔴 Root Cause of Hallucinations</div>
+      <p>Most RAG systems don't fail at the LLM stage — they fail at document ingestion. When your parser mangles a table or misses a scanned page, the LLM hallucinates because the context it received was already broken.</p>
+    </div>
+    <div class="card">
+      <p>Imagine someone gave you an important letter — but before you read it, a toddler scribbled all over it and tore random pieces out. Now it doesn't matter how smart you are — giving the right answer is almost impossible. <strong>That's exactly what basic PDF loaders do in RAG systems.</strong></p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card c1">
+        <div class="pcard-title">📊 Table Destruction</div>
+        <p>Multi-column tables get linearized into one stream. Row context is lost, numbers float without headers, merged cells collapse into noise.</p>
+      </div>
+      <div class="problem-card c2">
+        <div class="pcard-title">🔍 OCR Blindness</div>
+        <p>Scanned PDFs and image-only pages return empty strings or garbled characters with basic loaders like PyPDF2.</p>
+      </div>
+      <div class="problem-card c3">
+        <div class="pcard-title">📐 Layout Collapse</div>
+        <p>Multi-column layouts, sidebars, footnotes — all merge into one blob. Reading order goes wrong. Context is completely destroyed.</p>
+      </div>
+      <div class="problem-card c4">
+        <div class="pcard-title">🖼️ Image Blindness</div>
+        <p>Charts, diagrams, infographics — silently skipped. Critical information that lives only in images is simply gone.</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <div class="callout-title">⚡ The Cascade Effect</div>
+      <p>Bad parsing → broken chunks → poor embeddings → wrong retrieval → hallucinated answer. The damage compounds at every stage. <strong>Fix parsing and you fix the entire downstream pipeline simultaneously.</strong></p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 2 -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">🔧</div>
+      <h2>Where Parsing Lives in the RAG Pipeline</h2>
+    </div>
+    <div class="card">
+      <div class="pipeline">
+        <div class="pipeline-step">
+          <div class="pnum">01</div>
+          <div class="pstep-body">
+            <h4>Document Ingestion</h4>
+            <p>Raw files arrive — PDFs, DOCX, PPTX, XLSX, HTML, scanned images. This is where most pipelines make their first (and costliest) mistake.</p>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pnum">02</div>
+          <div class="pstep-body">
+            <h4>🎯 Intelligent Parsing <span class="hl-rose">(Today's Focus)</span></h4>
+            <p>Advanced parsers analyze layout, extract tables as structured data, run OCR on images, preserve reading order, and output clean Markdown/JSON.</p>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pnum">03</div>
+          <div class="pstep-body">
+            <h4>Chunking</h4>
+            <p>Clean parsed output is split into semantically meaningful pieces. Structure-aware chunking is only possible after proper parsing. Optimal: 256–512 tokens.</p>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pnum">04</div>
+          <div class="pstep-body">
+            <h4>Embedding & Indexing</h4>
+            <p>Each chunk is converted to a dense vector and stored in a vector database (Pinecone, Qdrant, Weaviate, ChromaDB, etc.).</p>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="pnum">05</div>
+          <div class="pstep-body">
+            <h4>Retrieval + Generation</h4>
+            <p>User query is embedded, relevant chunks retrieved, LLM generates a grounded answer. With clean parsing, accuracy improves dramatically across all steps.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 3 -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">🛠️</div>
+      <h2>The Two Tools That Actually Fix This</h2>
+    </div>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-card-top">
+          <div class="tool-logo">🦙</div>
+          <div>
+            <div class="tool-name">LlamaParse</div>
+            <div class="tool-sub">by LlamaIndex · Cloud API · v2 (2026)</div>
+          </div>
+        </div>
+        <div class="tool-tags">
+          <span class="tag tag-rose">Cloud-Based</span>
+          <span class="tag tag-blue">Python + TS SDK</span>
+          <span class="tag tag-teal">LLM-Native</span>
+        </div>
+        <ul class="tool-feats">
+          <li>GenAI-native — uses LLMs directly for precision parsing</li>
+          <li><strong>v2 (late 2025):</strong> 4-tier config, up to 50% cost reduction, stable LTS</li>
+          <li>Natural language parsing instructions — tell it how to read your doc</li>
+          <li>Industry-leading table extraction powered by LLM intelligence</li>
+          <li>JSON mode: full structured output, tables as CSV</li>
+          <li>Supports PDF, PPTX, DOCX, XLSX, HTML, images</li>
+          <li>LlamaSheets beta (2026): handles merged cells & complex spreadsheets</li>
+          <li>1,000 free pages/day on LlamaCloud</li>
+        </ul>
+      </div>
+      <div class="tool-card">
+        <div class="tool-card-top">
+          <div class="tool-logo">🔬</div>
+          <div>
+            <div class="tool-name">Docling</div>
+            <div class="tool-sub">by IBM Research · Open Source · Apache 2.0</div>
+          </div>
+        </div>
+        <div class="tool-tags">
+          <span class="tag tag-teal">Open Source</span>
+          <span class="tag tag-blue">Self-Hosted</span>
+          <span class="tag tag-purple">37k+ Stars</span>
+        </div>
+        <ul class="tool-feats">
+          <li><strong>Granite-Docling-258M (Jan 2026):</strong> production VLM, Apache 2.0</li>
+          <li>DocTags: charts, tables, forms, code, equations in one pass</li>
+          <li>TableFormer model: specialist table structure recognition</li>
+          <li>Built-in Azure AI Search & Granite integration</li>
+          <li><strong>97.9% accuracy</strong> on complex tables (Procycons 2025)</li>
+          <li>Local/CPU — data never leaves your infrastructure</li>
+          <li>Hosted under LF AI & Data Foundation — enterprise governance</li>
+          <li>Red Hat: "#1 open-source repo for document intelligence"</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <div class="callout-title">💡 How to Choose</div>
+      <p><strong>LlamaParse:</strong> Fast cloud integration, LlamaIndex stacks, natural language instructions, quick prototyping. <strong>Docling:</strong> Self-hosting, privacy-sensitive data, local enterprise deployment, full pipeline control. Both output clean Markdown/JSON any RAG framework can consume.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 4: BENCHMARKS -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <h2>Parser Benchmark (2025–2026 Data)</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:13px; margin-bottom:18px;">Based on Procycons benchmark (March 2025), Firecrawl comparative analysis (April 2026), and F22 Labs testing (Feb 2026) on financial PDFs and sustainability reports.</p>
+      <h3>Complex Table Extraction Accuracy</h3>
+      <div class="bench-rows">
+        <div class="bench-row">
+          <div class="bench-label">Docling</div>
+          <div class="bench-track"><div class="bench-fill" style="width:97.9%"></div></div>
+          <div class="bench-val">97.9%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-label">LlamaParse v2</div>
+          <div class="bench-track"><div class="bench-fill" style="width:92%;background:linear-gradient(90deg,#F48FB1,#E91E8C)"></div></div>
+          <div class="bench-val">~92%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-label">Unstructured</div>
+          <div class="bench-track"><div class="bench-fill" style="width:75%;background:linear-gradient(90deg,#FFB74D,#FF7043)"></div></div>
+          <div class="bench-val">75%</div>
+        </div>
+        <div class="bench-row">
+          <div class="bench-label">PyPDF2 / basic</div>
+          <div class="bench-track"><div class="bench-fill" style="width:18%;background:#E57373"></div></div>
+          <div class="bench-val">&lt;20%</div>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tool</th><th>Hosting</th><th>OCR</th><th>Table Quality</th><th>Cost</th><th>Best For</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>LlamaParse v2</strong></td><td><span class="tag tag-blue">Cloud API</span></td><td>✅ Yes</td><td>⭐⭐⭐⭐</td><td>Free tier + paid</td><td>LlamaIndex stacks</td></tr>
+          <tr><td><strong>Docling + Granite</strong></td><td><span class="tag tag-teal">Self-hosted</span></td><td>✅ Yes</td><td>⭐⭐⭐⭐⭐</td><td>Free (Apache 2.0)</td><td>Privacy, enterprise</td></tr>
+          <tr><td><strong>Reducto</strong></td><td><span class="tag tag-blue">Cloud API</span></td><td>✅ Agentic</td><td>⭐⭐⭐⭐⭐</td><td>Custom pricing</td><td>Finance, legal</td></tr>
+          <tr><td><strong>Firecrawl PDF</strong></td><td><span class="tag tag-blue">Cloud API</span></td><td>✅ Auto</td><td>⭐⭐⭐</td><td>Usage-based</td><td>AI agents</td></tr>
+          <tr><td><strong>PyPDF2 / basic</strong></td><td><span class="tag tag-teal">Local lib</span></td><td>❌ No</td><td>⭐</td><td>Free</td><td>Simple text PDFs only</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 5: LLAMAPARSE CODE -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">💻</div>
+      <h2>Code: LlamaParse v2 (2026)</h2>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <span class="code-label">Installation — old llama-parse deprecated May 2026</span>
+      </div>
+      <pre><span class="cm"># New package replaces deprecated llama-parse</span>
+pip install llama-cloud-services llama-index-core
+
+<span class="cm"># Get your free API key at cloud.llamaindex.ai</span>
+<span class="ck">export</span> LLAMA_CLOUD_API_KEY=<span class="cs">"your_api_key_here"</span></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python</span>
+        <span class="code-label">LlamaParse v2 — Basic Usage</span>
+      </div>
+      <pre><span class="ck">from</span> <span class="cn">llama_cloud_services</span> <span class="ck">import</span> <span class="cn">LlamaParse</span>
+<span class="ck">import</span> <span class="cn">os</span>
+
+parser = <span class="cn">LlamaParse</span>(
+    api_key=os.environ[<span class="cs">"LLAMA_CLOUD_API_KEY"</span>],
+    result_type=<span class="cs">"markdown"</span>,       <span class="cm"># or "json"</span>
+    verbose=<span class="ck">True</span>,
+    language=<span class="cs">"en"</span>,
+    <span class="cm"># 🌟 Unique superpower: natural language parsing instructions</span>
+    parsing_instruction=<span class="cs">"""
+        Extract all tables in full. Preserve column headers.
+        Keep all numbers and units exactly as they appear.
+        If a page is scanned, apply OCR carefully.
+        Maintain reading order for multi-column layouts.
+    """</span>
+)
+
+<span class="cm"># Parse async</span>
+documents = <span class="ck">await</span> parser.<span class="cf">aload_data</span>(<span class="cs">"report.pdf"</span>)
+<span class="ck">for</span> doc <span class="ck">in</span> documents:
+    <span class="cf">print</span>(doc.text)  <span class="cm"># Clean Markdown — ready for chunking</span></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python</span>
+        <span class="code-label">LlamaParse — Full RAG Pipeline with LlamaIndex</span>
+      </div>
+      <pre><span class="ck">from</span> <span class="cn">llama_cloud_services</span> <span class="ck">import</span> <span class="cn">LlamaParse</span>
+<span class="ck">from</span> <span class="cn">llama_index.core</span> <span class="ck">import</span> <span class="cn">VectorStoreIndex, SimpleDirectoryReader</span>
+<span class="ck">from</span> <span class="cn">llama_index.core.node_parser</span> <span class="ck">import</span> <span class="cn">MarkdownElementNodeParser</span>
+
+parser = <span class="cn">LlamaParse</span>(
+    result_type=<span class="cs">"markdown"</span>,
+    parsing_instruction=<span class="cs">"Treat all tables carefully. Preserve structure."</span>
+)
+
+documents = <span class="cn">SimpleDirectoryReader</span>(
+    <span class="cs">"./docs"</span>,
+    file_extractor={<span class="cs">".pdf"</span>: parser, <span class="cs">".docx"</span>: parser, <span class="cs">".pptx"</span>: parser}
+).<span class="cf">load_data</span>()
+
+<span class="cm"># Structure-aware chunking — understands Markdown headers + tables</span>
+node_parser = <span class="cn">MarkdownElementNodeParser</span>(num_workers=<span class="co">8</span>)
+nodes = node_parser.<span class="cf">get_nodes_from_documents</span>(documents)
+
+index = <span class="cn">VectorStoreIndex</span>(nodes)
+query_engine = index.<span class="cf">as_query_engine</span>(similarity_top_k=<span class="co">5</span>)
+
+response = query_engine.<span class="cf">query</span>(<span class="cs">"What was the revenue in Q3?"</span>)
+<span class="cf">print</span>(response)</pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 6: DOCLING CODE -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">🔬</div>
+      <h2>Code: Docling + Granite-Docling-258M (2026)</h2>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">bash</span>
+        <span class="code-label">Installation</span>
+      </div>
+      <pre><span class="cm"># Core install</span>
+pip install docling
+
+<span class="cm"># With GPU acceleration (recommended for production)</span>
+pip install docling[gpu]
+
+<span class="cm"># Granite-Docling-258M downloads automatically on first use
+# Or pull manually from HuggingFace:</span>
+pip install huggingface-hub
+python -c <span class="cs">"from huggingface_hub import snapshot_download; \
+snapshot_download('ibm-granite/granite-docling-258m')"</span></pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python</span>
+        <span class="code-label">Docling — Basic Conversion</span>
+      </div>
+      <pre><span class="ck">from</span> <span class="cn">docling.document_converter</span> <span class="ck">import</span> <span class="cn">DocumentConverter</span>
+<span class="ck">from</span> <span class="cn">docling.datamodel.pipeline_options</span> <span class="ck">import</span> <span class="cn">PdfPipelineOptions</span>
+
+<span class="cm"># Granite-Docling-258M is default VLM since January 2026</span>
+pipeline_opts = <span class="cn">PdfPipelineOptions</span>(
+    do_ocr=<span class="ck">True</span>,               <span class="cm"># OCR for scanned pages</span>
+    do_table_structure=<span class="ck">True</span>,   <span class="cm"># TableFormer model</span>
+    generate_page_images=<span class="ck">True</span>, <span class="cm"># Extract embedded images</span>
+)
+
+converter = <span class="cn">DocumentConverter</span>(pipeline_options=pipeline_opts)
+result = converter.<span class="cf">convert</span>(<span class="cs">"report.pdf"</span>)
+doc = result.document
+
+markdown = doc.<span class="cf">export_to_markdown</span>()   <span class="cm"># Clean RAG-ready Markdown</span>
+json_data = doc.<span class="cf">export_to_dict</span>()       <span class="cm"># Full DocTags structure</span>
+
+<span class="cm"># Access tables as pandas DataFrames!</span>
+<span class="ck">for</span> table <span class="ck">in</span> doc.tables:
+    df = table.<span class="cf">export_to_dataframe</span>()
+    <span class="cf">print</span>(df)</pre>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">python</span>
+        <span class="code-label">Docling — Full RAG Pipeline with LangChain</span>
+      </div>
+      <pre><span class="ck">from</span> <span class="cn">docling.document_converter</span> <span class="ck">import</span> <span class="cn">DocumentConverter</span>
+<span class="ck">from</span> <span class="cn">docling.chunking</span> <span class="ck">import</span> <span class="cn">HybridChunker</span>
+<span class="ck">from</span> <span class="cn">langchain_core.documents</span> <span class="ck">import</span> <span class="cn">Document</span>
+<span class="ck">from</span> <span class="cn">langchain_openai</span> <span class="ck">import</span> <span class="cn">OpenAIEmbeddings, ChatOpenAI</span>
+<span class="ck">from</span> <span class="cn">langchain_community.vectorstores</span> <span class="ck">import</span> <span class="cn">Chroma</span>
+<span class="ck">from</span> <span class="cn">langchain.chains</span> <span class="ck">import</span> <span class="cn">RetrievalQA</span>
+<span class="ck">import</span> <span class="cn">glob</span>
+
+converter = <span class="cn">DocumentConverter</span>()
+all_chunks = []
+
+<span class="ck">for</span> pdf_path <span class="ck">in</span> glob.<span class="cf">glob</span>(<span class="cs">"./docs/*.pdf"</span>):
+    result = converter.<span class="cf">convert</span>(pdf_path)
+
+    <span class="cm"># HybridChunker: structure-aware, respects headings + tables</span>
+    chunker = <span class="cn">HybridChunker</span>(
+        tokenizer=<span class="cs">"sentence-transformers/all-MiniLM-L6-v2"</span>,
+        max_tokens=<span class="co">512</span>,     <span class="cm"># 2026 sweet spot</span>
+        overlap_tokens=<span class="co">64</span>,  <span class="cm"># ~12.5% overlap</span>
+        merge_peers=<span class="ck">True</span>
+    )
+
+    <span class="ck">for</span> chunk <span class="ck">in</span> chunker.<span class="cf">chunk</span>(dl_doc=result.document):
+        all_chunks.<span class="cf">append</span>(<span class="cn">Document</span>(
+            page_content=chunk.text,
+            metadata={
+                <span class="cs">"source"</span>:   pdf_path,
+                <span class="cs">"headings"</span>: chunk.meta.headings,
+                <span class="cs">"page"</span>:     chunk.meta.doc_items[<span class="co">0</span>].prov[<span class="co">0</span>].page_no
+            }
+        ))
+
+vectorstore = <span class="cn">Chroma</span>.<span class="cf">from_documents</span>(all_chunks, <span class="cn">OpenAIEmbeddings</span>())
+
+qa = <span class="cn">RetrievalQA</span>.<span class="cf">from_chain_type</span>(
+    llm=<span class="cn">ChatOpenAI</span>(model=<span class="cs">"gpt-4o-mini"</span>),
+    retriever=vectorstore.<span class="cf">as_retriever</span>(search_kwargs={<span class="cs">"k"</span>: <span class="co">5</span>}),
+    return_source_documents=<span class="ck">True</span>
+)
+answer = qa.<span class="cf">invoke</span>({<span class="cs">"query"</span>: <span class="cs">"What are the key findings?"</span>})
+<span class="cf">print</span>(answer[<span class="cs">"result"</span>])</pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 7: CHUNKING -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">✂️</div>
+      <h2>Chunking After Clean Parsing — 2026 Best Practices</h2>
+    </div>
+    <div class="callout success">
+      <div class="callout-title">✅ 2026 Research Consensus</div>
+      <p>A January 2026 systematic analysis found a <strong>"context cliff" at ~2,500 tokens</strong> where response quality drops sharply. Keep chunks under this. Recursive 512-token splitting leads accuracy benchmarks (69%) across 50 academic papers (Vecta, Feb 2026).</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Strategy</th><th>Chunk Size</th><th>Best For</th><th>Accuracy</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Recursive / Structural</strong></td><td>256–512 tokens</td><td>Most RAG apps</td><td>⭐⭐⭐⭐ Best balance</td><td>Low</td></tr>
+          <tr><td><strong>Docling HybridChunker</strong></td><td>512 tokens default</td><td>Complex structured docs</td><td>⭐⭐⭐⭐⭐</td><td>Low</td></tr>
+          <tr><td><strong>MarkdownElementParser</strong></td><td>Heading-aware</td><td>LlamaIndex + LlamaParse</td><td>⭐⭐⭐⭐</td><td>Low</td></tr>
+          <tr><td><strong>Semantic Chunking</strong></td><td>Variable</td><td>Knowledge bases</td><td>⭐⭐⭐ (can fragment)</td><td>High compute</td></tr>
+          <tr><td><strong>Hierarchical</strong></td><td>Multi-layer</td><td>Agent systems</td><td>⭐⭐⭐⭐ complex queries</td><td>High</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout info">
+      <div class="callout-title">📐 Practical Defaults (Feb 2026)</div>
+      <p>Chunk size: <strong>256–512 tokens</strong> · Overlap: <strong>10–20% (50–100 tokens)</strong> · The 3% retrieval gain from semantic chunking rarely justifies 10× compute cost at scale.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 8: MISTAKES -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">❌</div>
+      <h2>7 Common Mistakes to Avoid</h2>
+    </div>
+    <div class="card">
+      <ul class="checklist">
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Using PyPDF2 for complex documents.</strong> Any table, scanned page, or multi-column layout will come out broken. Switch to LlamaParse or Docling.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Chunking before validating parse quality.</strong> Inspect a sample of parsed output first — you won't catch broken parses until production.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Using fixed-size chunking on structured documents.</strong> Splitting a table across two chunks destroys meaning. Use HybridChunker or MarkdownElementNodeParser.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Ignoring reading order.</strong> Basic extractors output text in the wrong order for multi-column layouts. Advanced parsers preserve logical reading order.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Skipping metadata.</strong> Always store page number, section heading, and source in chunk metadata — essential for tracing hallucinations and building citations.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Not testing on scanned PDFs.</strong> Text-based and image-based PDFs need different strategies. Test both types from your specific domain.</div></li>
+        <li><div class="cbox cbox-bad">✗</div><div><strong>Over-relying on semantic chunking.</strong> 2026 benchmarks show recursive 512-token splitting beats semantic chunking on most datasets at a fraction of the compute cost.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 9: CHECKLIST -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">✅</div>
+      <h2>Production Parsing Checklist</h2>
+    </div>
+    <div class="card">
+      <ul class="checklist">
+        <li><div class="cbox cbox-good">✓</div><div>Parser handles all file types in your corpus (PDF, DOCX, PPTX, scanned images)</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Tables extracted cleanly — verified with a complex multi-column table from real data</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>OCR enabled and tested on a scanned page from your specific domain</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Reading order correct on multi-column layouts</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Parsed output manually inspected for 5–10 sample documents</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Structure-aware chunking applied — no tables split mid-chunk</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Chunk size validated: 256–512 tokens, 10–20% overlap</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Metadata stored: source file, page number, section heading, timestamp</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Error handling for corrupt or unreadable files</div></li>
+        <li><div class="cbox cbox-good">✓</div><div>Pipeline reproducible with pinned library versions and documented config</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SECTION 10: QUICK REFERENCE -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <h2>Quick Reference — Key Facts 2026</h2>
+    </div>
+    <div class="quote">
+      <p>"How hard can it be? Well, it can be very hard."</p>
+      <div class="quote-src">— Peter Staar, Principal Research Staff Member, IBM Research Zurich · Chair of Technical Steering, LF AI & Data Foundation</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Fact</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LlamaParse v2 launch</strong></td><td>Late 2025 — 4-tier config, up to 50% cost reduction, stable LTS versions</td></tr>
+          <tr><td><strong>llama-parse (PyPI)</strong></td><td>Deprecated — replaced by <code style="font-family:'DM Mono';font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;">llama-cloud-services</code>. Maintained until May 1, 2026</td></tr>
+          <tr><td><strong>Granite-Docling-258M</strong></td><td>Released January 2026 · Apache 2.0 · Production VLM replacing SmolDocling</td></tr>
+          <tr><td><strong>Docling GitHub stars</strong></td><td>37,000+ as of early 2026 · LF AI & Data Foundation hosted</td></tr>
+          <tr><td><strong>Docling table accuracy</strong></td><td>97.9% on complex tables (Procycons benchmark, March 2025)</td></tr>
+          <tr><td><strong>Optimal chunk size (2026)</strong></td><td>256–512 tokens with 10–20% overlap</td></tr>
+          <tr><td><strong>Context cliff</strong></td><td>~2,500 tokens — retrieval quality degrades sharply above this</td></tr>
+          <tr><td><strong>DocTags format</strong></td><td>Captures charts, tables, forms, code, equations in a single pass</td></tr>
+          <tr><td><strong>LlamaSheets (beta)</strong></td><td>LlamaIndex tool for merged cells and complex spreadsheets (2026)</td></tr>
+          <tr><td><strong>LlamaSplit (beta)</strong></td><td>AI-powered document separation for bundled PDFs (2025)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <div style="text-align:center; margin-bottom:40px;">
+    <p style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-soft);margin-bottom:14px;font-weight:600;">20-Day RAG Series</p>
+    <div class="series-nav">
+      <a class="snav-pill" href="#">Day 1</a>
+      <a class="snav-pill" href="#">Day 2</a>
+      <a class="snav-pill active" href="#">Day 3</a>
+      <a class="snav-pill" href="#">Day 4 →</a>
+    </div>
+    <p style="margin-top:14px;font-size:13px;">Next up: <span class="hl-rose">Day 4 — Chunking Strategies Deep Dive</span></p>
+  </div>
+
+</div>
+
+<footer>
+  <p>Built for the 20-Day RAG Series · <span>by Unnati</span> · Updated May 2026</p>
+  <p style="margin-top:6px;font-size:11px;">Sources: LlamaIndex Blog · IBM Research · Procycons Benchmark 2025 · Firecrawl Blog 2026 · F22 Labs 2026 · Vecta Benchmark Feb 2026</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('prog').style.width = pct + '%';
+  });
+</script>
+</body>
+</html>
