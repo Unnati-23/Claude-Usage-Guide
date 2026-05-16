@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Engineer Roadmap 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #FFF0E8;
+      --surface: rgba(255,255,255,0.65);
+      --border: rgba(244,143,177,0.28);
+      --accent: #E8507A;
+      --accent2: #FF7043;
+      --text: #3D2B1F;
+      --muted: #A0745C;
+      --free: #E8507A;
+      --paid: #C4892A;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #FFF0E8 0%, #FCE4EC 35%, #FFE4CC 65%, #FFF0F5 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; left: -200px;
+      width: 650px; height: 650px;
+      background: radial-gradient(circle, rgba(255,171,145,0.22) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -180px; right: -180px;
+      width: 560px; height: 560px;
+      background: radial-gradient(circle, rgba(244,143,177,0.18) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container { max-width: 860px; margin: 0 auto; padding: 60px 24px 100px; position: relative; z-index: 1; }
+    header { text-align: center; margin-bottom: 64px; animation: fadeDown 0.7s ease both; }
+    .tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #C2375A; border: 1px solid rgba(194,55,90,0.4); padding: 4px 14px; border-radius: 100px; margin-bottom: 20px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 16px; color: #3D2B1F; }
+    h1 span { color: #C2375A; }
+    .subtitle { color: #8C5C4A; font-size: 15px; max-width: 500px; margin: 0 auto 28px; }
+    .stats { display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: #C2375A; }
+    .stat-label { font-size: 11px; color: #A0745C; text-transform: uppercase; letter-spacing: 0.08em; }
+    .notice { background: rgba(255,255,255,0.55); border: 1px solid rgba(194,55,90,0.25); border-radius: 12px; padding: 20px 24px; margin-bottom: 48px; font-size: 14px; color: #5A3020; backdrop-filter: blur(8px); }
+    .notice strong { color: #C2375A; }
+    .phase { margin-bottom: 52px; animation: fadeUp 0.6s ease both; }
+    .phase-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .phase-num { font-family: 'DM Mono', monospace; font-size: 11px; color: #C2375A; background: rgba(194,55,90,0.08); border: 1px solid rgba(194,55,90,0.25); padding: 3px 10px; border-radius: 6px; white-space: nowrap; }
+    .phase-title { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 700; color: #3D2B1F; }
+    .phase-line { flex: 1; height: 1px; background: rgba(194,55,90,0.2); }
+    .instruction { background: rgba(255,255,255,0.5); border-left: 3px solid #E8507A; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 13.5px; color: #5A3020; backdrop-filter: blur(6px); }
+    .instruction strong { color: #C2375A; display: block; margin-bottom: 4px; font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .courses { display: flex; flex-direction: column; gap: 10px; }
+    .course-card { background: rgba(255,255,255,0.6); border: 1px solid rgba(244,143,177,0.35); border-radius: 10px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 16px; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; backdrop-filter: blur(8px); }
+    .course-card:hover { border-color: rgba(194,55,90,0.4); transform: translateX(4px); box-shadow: 0 4px 20px rgba(232,80,122,0.12); }
+    .course-left { flex: 1; }
+    .course-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 4px; color: #3D2B1F; }
+    .course-meta { font-size: 12.5px; color: #8C5C4A; display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .course-link { font-family: 'DM Mono', monospace; font-size: 11px; color: #B03060; text-decoration: none; word-break: break-all; display: inline-block; }
+    .course-link:hover { text-decoration: underline; color: #C2375A; }
+    .badge { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; padding: 3px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; }
+    .badge-free { background: rgba(194,55,90,0.1); color: #A82848; border: 1px solid rgba(194,55,90,0.3); }
+    .badge-paid { background: rgba(180,120,30,0.1); color: #8A5A10; border: 1px solid rgba(180,120,30,0.3); }
+    .timeline { background: rgba(255,255,255,0.55); border: 1px solid rgba(244,143,177,0.35); border-radius: 14px; padding: 32px; margin-top: 60px; backdrop-filter: blur(8px); }
+    .timeline h2 { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; color: #3D2B1F; }
+    .timeline h2::after { content: ''; flex: 1; height: 1px; background: rgba(194,55,90,0.2); }
+    .timeline-item { display: flex; gap: 20px; padding-bottom: 24px; position: relative; }
+    .timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 39px; top: 40px; bottom: 0; width: 1px; background: rgba(194,55,90,0.2); }
+    .timeline-dot { width: 40px; height: 40px; background: rgba(194,55,90,0.08); border: 1px solid rgba(194,55,90,0.25); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 10px; color: #C2375A; flex-shrink: 0; text-align: center; line-height: 1.3; }
+    .timeline-content h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; color: #3D2B1F; }
+    .timeline-content p { font-size: 13px; color: #8C5C4A; }
+    footer { text-align: center; margin-top: 72px; padding-top: 32px; border-top: 1px solid rgba(194,55,90,0.2); color: #8C5C4A; font-size: 13px; }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 600px) { .stats { gap: 20px; } .course-card { flex-direction: column; gap: 10px; } }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="tag">Free Roadmap . 2026</div>
+    <h1>How to Get Hired as an<br/><span>AI Engineer</span> in 2026</h1>
+    <p class="subtitle">A complete, curated course list for anyone starting from scratch. Most courses are completely free.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num">30+</div><div class="stat-label">Curated Courses</div></div>
+      <div class="stat"><div class="stat-num">80%</div><div class="stat-label">Free Resources</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Phases</div></div>
+      <div class="stat"><div class="stat-num">6-12</div><div class="stat-label">Months to Job-Ready</div></div>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>[!] How to use this list:</strong> You do <strong>NOT</strong> need to do every course listed. Under each section, <strong>pick ONE</strong> that matches your learning style. Go deep on one path rather than skimming everything. The goal is mastery, not completion.
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 01</span><h2 class="phase-title">Python Programming</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE</strong>
+      Python is your foundation - everything else builds on this. Choose based on how you learn best. University-style: CS50P. Interactive hands-on: Codecademy. Quick with certificate: see IBM on Coursera. Also follow CampusX and Stanford on YouTube throughout your learning - both are brilliant free supplementary content. <strong>Finish one course fully before moving on. Do NOT do all of them.</strong>
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CS50P - Intro to Programming with Python (Harvard) [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] Harvard University</span><span>[Time] ~10 weeks</span><span>[Level] Beginner</span></div>
+          <a href="https://cs50.harvard.edu/python/" target="_blank" class="course-link">https://cs50.harvard.edu/python/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Python for Data Science, AI & Development (IBM)</div>
+          <div class="course-meta"><span>[Degree] IBM on Coursera</span><span>[Time] ~25 hours</span><span>[Level] Beginner</span></div>
+          <a href="https://www.coursera.org/learn/python-for-applied-data-science-ai" target="_blank" class="course-link">https://www.coursera.org/learn/python-for-applied-data-science-ai</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Learn Python 3 - Interactive (Codecademy)</div>
+          <div class="course-meta"><span>[Degree] Codecademy</span><span>[Time] ~20 hours</span><span>[Level] Beginner</span></div>
+          <a href="https://www.codecademy.com/learn/learn-python-3" target="_blank" class="course-link">https://www.codecademy.com/learn/learn-python-3</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CampusX - 100 Days of Python (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] CampusX on YouTube</span><span>[Time] Self-paced</span><span>[Level] Beginner</span></div>
+          <a href="https://youtube.com/playlist?list=PLKnIA16_Rmvb1RYR-iTA_hzckhdONtSW4" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLKnIA16_Rmvb1RYR-iTA_hzckhdONtSW4</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CampusX - 100 Days of ML (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] CampusX on YouTube</span><span>[Time] Self-paced</span><span>[Level] Beginner -> Intermediate</span></div>
+          <a href="https://youtube.com/playlist?list=PLKnIA16_Rmvbr7zKYQuBfsVkjoLcJgxHH" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLKnIA16_Rmvbr7zKYQuBfsVkjoLcJgxHH</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CampusX - GenAI using LangChain (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] CampusX on YouTube</span><span>[Time] Self-paced</span><span>[Level] Intermediate</span></div>
+          <a href="https://youtube.com/playlist?list=PLKnIA16_RmvaTbihpo4MtzVm4XOQa0ER0" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLKnIA16_RmvaTbihpo4MtzVm4XOQa0ER0</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CampusX - Agentic AI using LangGraph (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] CampusX on YouTube</span><span>[Time] Self-paced</span><span>[Level] Intermediate -> Advanced</span></div>
+          <a href="https://youtube.com/playlist?list=PLKnIA16_RmvYsvB8qkUQuJmJNuiCUJFPL" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLKnIA16_RmvYsvB8qkUQuJmJNuiCUJFPL</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CampusX - MCP Model Context Protocol (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] CampusX on YouTube</span><span>[Time] Self-paced</span><span>[Level] Intermediate -> Advanced</span></div>
+          <a href="https://youtube.com/playlist?list=PLKnIA16_Rmva_oZ9F4ayUu9qcWgF7Fyc0" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLKnIA16_Rmva_oZ9F4ayUu9qcWgF7Fyc0</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Stanford CS229 - Machine Learning Full Course (YouTube Playlist)</div>
+          <div class="course-meta"><span>[Degree] Stanford University on YouTube</span><span>[Time] Self-paced</span><span>[Level] Intermediate -> Advanced</span></div>
+          <a href="https://youtube.com/playlist?list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU" target="_blank" class="course-link">YouTube: https://youtube.com/playlist?list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 02</span><h2 class="phase-title">Machine Learning Fundamentals</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE</strong>
+      This is where you understand how AI actually works under the hood. Andrew Ng's ML Specialization is the gold standard - rated 4.9/5 and taken by over 4.8 million people. If you prefer a more CS-focused approach, go with CS50 AI from Harvard. <strong>Do not skip this phase - it makes everything else make sense.</strong> You can audit both for free on Coursera (full content, no certificate).
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Machine Learning Specialization - Andrew Ng [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] Stanford & DeepLearning.AI on Coursera</span><span>[Time] ~3 months</span><span>[Level] Beginner</span></div>
+          <a href="https://www.coursera.org/specializations/machine-learning-introduction" target="_blank" class="course-link">https://www.coursera.org/specializations/machine-learning-introduction</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Deep Learning Specialization - Andrew Ng</div>
+          <div class="course-meta"><span>[Degree] DeepLearning.AI on Coursera</span><span>[Time] ~4 months</span><span>[Level] Intermediate</span></div>
+          <a href="https://www.coursera.org/specializations/deep-learning" target="_blank" class="course-link">https://www.coursera.org/specializations/deep-learning</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">CS50's Introduction to AI with Python (Harvard)</div>
+          <div class="course-meta"><span>[Degree] Harvard University</span><span>[Time] ~7 weeks</span><span>[Level] Intermediate</span></div>
+          <a href="https://cs50.harvard.edu/ai/" target="_blank" class="course-link">https://cs50.harvard.edu/ai/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 03</span><h2 class="phase-title">RAG, Vectors & Vector Databases</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE as primary, use others as reference</strong>
+      RAG is one of the most genuinely valuable and in-demand skills for AI engineers right now - this is what makes AI actually useful in real businesses. You need to understand what vectors are, how vector databases store them, and how RAG pipelines work end-to-end. <strong>Use the DeepLearning.AI course on Coursera as your primary.</strong> The Activeloop course is great additional hands-on practice with LangChain and LlamaIndex.
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Retrieval Augmented Generation (RAG) - DeepLearning.AI [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] DeepLearning.AI on Coursera</span><span>[Time] ~10 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://www.coursera.org/learn/retrieval-augmented-generation-rag" target="_blank" class="course-link">https://www.coursera.org/learn/retrieval-augmented-generation-rag</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Building & Evaluating Advanced RAG - DeepLearning.AI Short Course</div>
+          <div class="course-meta"><span>[Degree] DeepLearning.AI</span><span>[Time] ~2 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/" target="_blank" class="course-link">https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">RAG with LangChain & LlamaIndex - Activeloop (20K+ Engineers)</div>
+          <div class="course-meta"><span>[Degree] Activeloop</span><span>[Time] ~15 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://learn.activeloop.ai/courses/rag" target="_blank" class="course-link">https://learn.activeloop.ai/courses/rag</a>
+        </div>
+        <span class="badge badge-free">FREE (Certified)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Introduction to RAG - Hands-On Guided Project (Duke University)</div>
+          <div class="course-meta"><span>[Degree] Duke University on Coursera</span><span>[Time] ~2 hours</span><span>[Level] Beginner</span></div>
+          <a href="https://www.coursera.org/projects/introduction-to-rag" target="_blank" class="course-link">https://www.coursera.org/projects/introduction-to-rag</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 04</span><h2 class="phase-title">LLM APIs & Prompt Engineering</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE or TWO</strong>
+      This is the bridge between theory and building real products. You need to know how to call OpenAI, Anthropic (Claude), and Gemini APIs from Python - and write prompts that get consistent results. <strong>Start with Anthropic Academy - completely free, 17 courses with certificates, covers APIs, MCP, and agent skills all in one place.</strong> Then add the DeepLearning.AI prompt engineering short course. You do not need to do all of these.
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Anthropic Academy - All Free Courses (API, MCP, Agents) [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] Anthropic (Official)</span><span>[Time] ~18-22 hours total</span><span>[Level] Beginner -> Advanced</span></div>
+          <a href="https://anthropic.skilljar.com/" target="_blank" class="course-link">https://anthropic.skilljar.com/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Building with the Claude API - Anthropic</div>
+          <div class="course-meta"><span>[Degree] Anthropic (Official)</span><span>[Time] ~5 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://anthropic.skilljar.com/claude-with-the-anthropic-api" target="_blank" class="course-link">https://anthropic.skilljar.com/claude-with-the-anthropic-api</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Anthropic API Courses - GitHub (Official)</div>
+          <div class="course-meta"><span>[Degree] Anthropic on GitHub</span><span>[Time] Self-paced</span><span>[Level] Beginner</span></div>
+          <a href="https://github.com/anthropics/courses" target="_blank" class="course-link">https://github.com/anthropics/courses</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">ChatGPT Prompt Engineering for Developers - DeepLearning.AI</div>
+          <div class="course-meta"><span>[Degree] DeepLearning.AI</span><span>[Time] ~2 hours</span><span>[Level] Beginner</span></div>
+          <a href="https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/" target="_blank" class="course-link">https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Building Systems with the ChatGPT API - DeepLearning.AI</div>
+          <div class="course-meta"><span>[Degree] DeepLearning.AI</span><span>[Time] ~2 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://www.deeplearning.ai/short-courses/building-systems-with-chatgpt/" target="_blank" class="course-link">https://www.deeplearning.ai/short-courses/building-systems-with-chatgpt/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 05</span><h2 class="phase-title">Building AI Agents</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE as primary</strong>
+      This is literally what is getting people hired in 2026. AI agents are autonomous systems that can reason, plan, and take actions - and 88% of company leaders are actively increasing budgets for this skill. <strong>Start with LangChain Academy - completely free, directly from the creators of LangChain and LangGraph.</strong> Build at least one real working agent and push it to GitHub. That matters more than any certificate.
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Introduction to LangChain - Build AI Agents with Python [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] LangChain Academy (Official)</span><span>[Time] ~6 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://academy.langchain.com/courses/foundation-introduction-to-langchain-python" target="_blank" class="course-link">https://academy.langchain.com/courses/foundation-introduction-to-langchain-python</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Introduction to LangGraph - Python</div>
+          <div class="course-meta"><span>[Degree] LangChain Academy (Official)</span><span>[Time] ~6 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://academy.langchain.com/courses/intro-to-langgraph" target="_blank" class="course-link">https://academy.langchain.com/courses/intro-to-langgraph</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Deep Research with LangGraph - Project Course</div>
+          <div class="course-meta"><span>[Degree] LangChain Academy (Official)</span><span>[Time] ~1.5 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://academy.langchain.com/courses/deep-research-with-langgraph" target="_blank" class="course-link">https://academy.langchain.com/courses/deep-research-with-langgraph</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Agentic AI with LangChain & LangGraph - IBM on Coursera</div>
+          <div class="course-meta"><span>[Degree] IBM on Coursera</span><span>[Time] ~8 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://www.coursera.org/learn/agentic-ai-langchain-langgraph" target="_blank" class="course-link">https://www.coursera.org/learn/agentic-ai-langchain-langgraph</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Browse All LangChain Academy Courses</div>
+          <div class="course-meta"><span>[Degree] LangChain Academy (Official)</span><span>[Time] Self-paced</span><span>[Level] All Levels</span></div>
+          <a href="https://academy.langchain.com/collections" target="_blank" class="course-link">https://academy.langchain.com/collections</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Hugging Face AI Agents Course - Beginner to Expert (with Certificate)</div>
+          <div class="course-meta"><span>[Degree] Hugging Face</span><span>[Time] ~6 weeks</span><span>[Level] Beginner -> Expert</span></div>
+          <a href="https://huggingface.co/learn/agents-course/unit0/introduction" target="_blank" class="course-link">https://huggingface.co/learn/agents-course/unit0/introduction</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 6 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 06</span><h2 class="phase-title">Model Context Protocol (MCP)</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE or TWO</strong>
+      MCP is the open standard reshaping how AI agents connect to tools, data, and the real world. Gartner predicts 40% of enterprise applications will have AI agents by end of 2026 - and MCP is the infrastructure most of them will run on. It already has 97 million+ SDK downloads, backed by OpenAI, Google, Microsoft, and Salesforce. <strong>This is the future of AI development and companies are actively looking for engineers who know this.</strong> Start with Anthropic Academy's MCP courses (free). Then Hugging Face for broader perspective. Pick one or two - don't overwhelm yourself.
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Introduction to Model Context Protocol - Anthropic [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] Anthropic (Official)</span><span>[Time] ~4 hours</span><span>[Level] Intermediate</span></div>
+          <a href="https://anthropic.skilljar.com/introduction-to-model-context-protocol" target="_blank" class="course-link">https://anthropic.skilljar.com/introduction-to-model-context-protocol</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Model Context Protocol: Advanced Topics - Anthropic</div>
+          <div class="course-meta"><span>[Degree] Anthropic (Official)</span><span>[Time] ~4 hours</span><span>[Level] Advanced</span></div>
+          <a href="https://anthropic.skilljar.com/model-context-protocol-advanced-topics" target="_blank" class="course-link">https://anthropic.skilljar.com/model-context-protocol-advanced-topics</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">MCP Course - Beginner to Informed (Hugging Face + Anthropic)</div>
+          <div class="course-meta"><span>[Degree] Hugging Face</span><span>[Time] Self-paced</span><span>[Level] Beginner -> Intermediate</span></div>
+          <a href="https://huggingface.co/learn/mcp-course" target="_blank" class="course-link">https://huggingface.co/learn/mcp-course</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">MCP for Beginners - Microsoft Open Source Curriculum (GitHub)</div>
+          <div class="course-meta"><span>[Degree] Microsoft on GitHub</span><span>[Time] Self-paced</span><span>[Level] Beginner</span></div>
+          <a href="https://github.com/microsoft/mcp-for-beginners" target="_blank" class="course-link">https://github.com/microsoft/mcp-for-beginners</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">LangChain Essentials - Includes MCP Tools Module</div>
+          <div class="course-meta"><span>[Degree] LangChain Academy (Official)</span><span>[Time] ~1 hour</span><span>[Level] Intermediate</span></div>
+          <a href="https://academy.langchain.com/courses/langchain-essentials-python" target="_blank" class="course-link">https://academy.langchain.com/courses/langchain-essentials-python</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 7 -->
+  <div class="phase">
+    <div class="phase-header"><span class="phase-num">Phase 07</span><h2 class="phase-title">Git, GitHub & Deployment</h2><div class="phase-line"></div></div>
+    <div class="instruction">
+      <strong>[i] Instructions - Pick ONE Git course + Use Hugging Face Spaces to deploy</strong>
+      Every employer expects you to know Git and GitHub - it is non-negotiable. This is also how you build your portfolio and show proof of work. A full portfolio guide is coming in a separate video. For now: learn Git basics, push all your projects to GitHub, and deploy at least one live project on Hugging Face Spaces - it is the easiest free way to make your AI projects visible to employers. <strong>Git can be learned in a weekend. Do not delay on this.</strong>
+    </div>
+    <div class="courses">
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Git & GitHub Crash Course - FreeCodeCamp (YouTube) [*] Top Pick</div>
+          <div class="course-meta"><span>[Degree] FreeCodeCamp on YouTube</span><span>[Time] ~1 hour</span><span>[Level] Beginner</span></div>
+          <a href="https://www.youtube.com/@freecodecamp" target="_blank" class="course-link">https://www.youtube.com/@freecodecamp (search: "Git GitHub Crash Course")</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">GitHub Skills - Interactive Courses Built into GitHub (Official)</div>
+          <div class="course-meta"><span>[Degree] GitHub Official</span><span>[Time] Self-paced</span><span>[Level] Beginner</span></div>
+          <a href="https://skills.github.com/" target="_blank" class="course-link">https://skills.github.com/</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Introduction to Git and GitHub - Google on Coursera</div>
+          <div class="course-meta"><span>[Degree] Google on Coursera</span><span>[Time] ~16 hours</span><span>[Level] Beginner</span></div>
+          <a href="https://www.coursera.org/learn/introduction-git-github" target="_blank" class="course-link">https://www.coursera.org/learn/introduction-git-github</a>
+        </div>
+        <span class="badge badge-free">FREE (Audit)</span>
+      </div>
+      <div class="course-card">
+        <div class="course-left">
+          <div class="course-name">Deploy AI Apps for Free - Hugging Face Spaces (Official Docs)</div>
+          <div class="course-meta"><span>[Degree] Hugging Face</span><span>[Time] Self-paced</span><span>[Level] Beginner -> Intermediate</span></div>
+          <a href="https://huggingface.co/docs/hub/spaces" target="_blank" class="course-link">https://huggingface.co/docs/hub/spaces</a>
+        </div>
+        <span class="badge badge-free">FREE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline">
+    <h2>Recommended Learning Timeline</h2>
+    <div class="timeline-items">
+      <div class="timeline-item">
+        <div class="timeline-dot">M1-2</div>
+        <div class="timeline-content">
+          <h3>Python + ML Fundamentals</h3>
+          <p>Build your foundation. Pick one Python course and Andrew Ng's ML Specialization. Don't rush this - it is the most important phase.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">M3</div>
+        <div class="timeline-content">
+          <h3>RAG, Vectors & LLM APIs</h3>
+          <p>DeepLearning.AI RAG course + Anthropic Academy for APIs. Start calling real LLMs from Python.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">M4</div>
+        <div class="timeline-content">
+          <h3>Prompt Engineering</h3>
+          <p>DeepLearning.AI prompt engineering short course. Learn to get reliable, consistent results from LLMs.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">M5</div>
+        <div class="timeline-content">
+          <h3>AI Agents with LangChain & LangGraph</h3>
+          <p>LangChain Academy free courses. Build at least one real working agent and push it to GitHub.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">M6</div>
+        <div class="timeline-content">
+          <h3>MCPs & Advanced Systems</h3>
+          <p>Anthropic Academy MCP courses + Hugging Face MCP course. Learn to connect agents to real tools and data.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot">M7+</div>
+        <div class="timeline-content">
+          <h3>Git, GitHub & Portfolio Projects</h3>
+          <p>Learn Git basics, push everything to GitHub. Build 3-5 real projects. Deploy at least one live. <em>(Full portfolio guide coming in a separate video.)</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Curated for beginners entering AI engineering in 2026. Follow for more content like this.</p>
+    <p style="margin-top:8px;">Most resources are free. Paid options are clearly marked. Always check for the latest course versions.</p>
+  </footer>
+
+</div>
+</body>
+</html>
